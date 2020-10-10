@@ -1,0 +1,24 @@
+{
+  "name": "clacks",
+  "version": "1.0.0",
+  "description": "Terry Pratchett Network Protocol",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/AlexanderParker/clacks.git"
+  },
+  "keywords": [
+    "nodejs",
+    "p2p",
+    "networking"
+  ],
+  "author": "Alex Parker",
+  "license": "CC-BY-4.0",
+  "bugs": {
+    "url": "https://github.com/AlexanderParker/clacks/issues"
+  },
+  "homepage": "https://github.com/AlexanderParker/clacks#readme"
+}
