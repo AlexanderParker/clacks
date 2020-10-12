@@ -126,8 +126,8 @@ module.exports = function() {
 					var payload = JSON.parse(data)					
 					var sourceTower = this.getTower(sha256(payload.sender.hostname + payload.sender.port).toString());
 					// Reject payloads from ignore list
-					if (!!sourceTower && sourceTower.status == 'ignore') return
-					// Todo - add some logic to validate payloads and add abusers to ignore list
+					if (!!sourceTower && sourceTower.status == 'ignored') return
+					// Todo - add some logic to validate payloads and add abusers to ignored list
 					switch (payload.type) {
 						case 'message':
 							this.enqueue(payload.message)
@@ -244,10 +244,10 @@ module.exports = function() {
 		// Retrieve a tower by identifier, or null
 		getTower: function(identifier) {
 			if (this.towers['ignored'].hasOwnProperty(identifier)) return this.towers['ignored'][identifier]
-			if (this.towers['alive'].hasOwnProperty(identifier)) return this.towers['ignored'][identifier]
-			if (this.towers['new'].hasOwnProperty(identifier)) return this.towers['ignored'][identifier]
-			if (this.towers['dead'].hasOwnProperty(identifier)) return this.towers['ignored'][identifier]
-			if (this.towers['lost'].hasOwnProperty(identifier)) return this.towers['ignored'][identifier]
+			if (this.towers['alive'].hasOwnProperty(identifier)) return this.towers['alive'][identifier]
+			if (this.towers['new'].hasOwnProperty(identifier)) return this.towers['new'][identifier]
+			if (this.towers['dead'].hasOwnProperty(identifier)) return this.towers['dead'][identifier]
+			if (this.towers['lost'].hasOwnProperty(identifier)) return this.towers['lost'][identifier]
 		},
 		// Add a new tower to the clacks network
 		expand: function(hostname, port) {
