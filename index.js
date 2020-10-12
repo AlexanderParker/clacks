@@ -143,7 +143,7 @@ module.exports = function() {
 					if (!sourceTower) {
 						this.expand(payload.sender.hostname, payload.sender.port)
 					} else {
-						this.update(tower, 'alive')
+						this.update(sourceTower, 'alive')
 					}										
 					if (!!payload.friend) this.expand(payload.friend.hostname, payload.friend.port)
 					res.writeHead(200)
