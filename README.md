@@ -39,7 +39,7 @@ Note: keep test.js running in another console while you run test2.js.
 * Kill the test2.js process (make sure the 'Hello Discworld!' message is currently held by any of towers 1,2, or 3 before doing so)
 * Observe that towers 1, 2 and 3 eventually announce that they have "lost" tower 4.
 
-"Step 3: Run test3.js*
+*Step 3: Run test3.js*
 
 Note: keep test.js running in another console while you run test3.js.
 
