@@ -64,11 +64,11 @@ Worth noting about these statuses:
 
 # Fun toy. Any applications?
 
-Definitely. An application could use these simple mechanisms and introduce measures to combat flooding, netsplits, and interference to create a global ephemeral storage network, where data does not reside in any one specific location but instead is constantly alive "in the air".
+Definitely. An application could use these simple mechanisms and introduce measures to combat flooding, netsplits, and interference to create a global ephemeral storage network, where data does not reside in any one specific location but instead is constantly alive "overhead".
 
 Carefully crafted message formats using multiple layers of strong key-pair encryption - for instance a layer for the message itself, and another layer that packages messages between peers, would allow users to release data anonymously into the clacks, and later retrieve it from any access point. As there is no central server, and as all messages bouncing between peers would be similarly encrypted, it would be hard to discern where any one piece of information was first introduced, or who (if anyone) ever accessed it.
 
-Large files can be broken into multiple messages, and resequenced as they're plucked from the air at some other point in the network.
+Large files can be broken into multiple messages, and resequenced as they're plucked from overhead at any other point in the network, assuming the client is able to determine the correct sequence and contents of the file (e.g. has the necessary keys to identify it as relevant to them).
 
 # Important next steps
 
