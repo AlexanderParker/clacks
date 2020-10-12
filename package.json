@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/AlexanderParker/clacks/issues"
   },
-  "homepage": "https://github.com/AlexanderParker/clacks#readme"
+  "homepage": "https://github.com/AlexanderParker/clacks#readme",
+  "dependencies": {
+    "crypto-js": "^4.0.0"
+  }
 }
