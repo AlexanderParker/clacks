@@ -30,7 +30,7 @@ function send(message, hostname, port, type, context, callback) {
 	
 	const req = http.request(options, res => {
 		res.on('data', d => {
-			// Do nothing - perhaps in the future we could return "friends" whenever a message is recieved.
+			// Do nothing - perhaps in the future we could return "friends" whenever a message is received.
 		})
 		res.on('end', () => {
 			callback(res.statusCode);
@@ -79,13 +79,13 @@ module.exports = function() {
 		/*
 			The queue contains messages to broadcast.
 
-			Items the host recieves are enqueued, items that are sent are dequeued.
+			Items the host receives are enqueued, items that are sent are dequeued.
 
 			Items may also be manually queued.
 		*/
 		queue: [],
 		/*
-			Array of callbacks to be called when messages are recieved. [function callback(<payload>) {}]
+			Array of callbacks to be called when messages are received. [function callback(<payload>) {}]
 		 */
 		_onMessageRecievedCallbacks: [],
 		/*
@@ -117,11 +117,7 @@ module.exports = function() {
 
 			// Start listening for messages
 			var server = http.createServer(function(req,res) {
-				// todo : ignore servers on ignore list, or that report false hostname
-				// if hostname:port not responsive, add to ignore list
-				// if hostname:port are on ignore list, reject
-
-				// Assemble the posted message data
+				// Assemble the received message data
 				var data = []
 				req.on('data', function(chunk) {
 					data.push(chunk)
@@ -300,7 +296,7 @@ module.exports = function() {
 		survey: function() {
 			return this.towers
 		},
-		// Register callback triggered after a message is recieved
+		// Register callback triggered after a message is received
 		onMessageRecieved: function(callback) {
 			this._onMessageRecievedCallbacks.push(callback)
 		},
