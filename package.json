@@ -1,10 +1,10 @@
 {
   "name": "clacks",
-  "version": "1.0.0",
-  "description": "Terry Pratchett Network Protocol",
+  "version": "0.1.0",
+  "description": "Clacks Network Protocol",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "test.js"
   },
   "repository": {
     "type": "git",
@@ -16,7 +16,7 @@
     "networking"
   ],
   "author": "Alex Parker",
-  "license": "CC-BY-4.0",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/AlexanderParker/clacks/issues"
   },
