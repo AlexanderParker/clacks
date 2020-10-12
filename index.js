@@ -2,9 +2,9 @@ var sha256 = require('crypto-js/sha256'),
 	http = require('http')
 
 function send(message, hostname, port, type, context, callback) {
-	// Attach a random "friend" station to the message to help the network grow.
-	var keys = Object.keys(context.stations['alive']),
-		friend = context.stations['alive'][keys[ keys.length * Math.random() << 0]]
+	// Attach a random "friend" tower to the message to help the network grow.
+	var keys = Object.keys(context.towers['alive']),
+		friend = context.towers['alive'][keys[ keys.length * Math.random() << 0]]
 
 	// Construct the payload
 	const data = JSON.stringify({
@@ -49,13 +49,13 @@ function send(message, hostname, port, type, context, callback) {
 module.exports = function() {
 	return {
 		/*
-			Stations are other known clacks hosts. We keep track of their address,
+			Towers are other known clacks hosts. We keep track of their address,
 			active status, and the time that status last updated.	
 
 
-			Stations format:
+			Towers format:
 
-			   	stations[status][addresshash] = {
+			   	towers[status][addresshash] = {
 					hostname: <string> (url)
 					time:    <int>    (timestamp)
 				}
@@ -66,9 +66,9 @@ module.exports = function() {
 				alive:   Was alive when last contacted
 				lost:    Missing from network, might be temporary
 				dead:    Missing from network, probably permanent
-				ignored: Known station to be ignored
+				ignored: Known tower to be ignored
 		*/
-		stations: {
+		towers: {
 			new: {},
 			alive: {},
 			lost: {},
@@ -89,13 +89,13 @@ module.exports = function() {
 		 */
 		_onMessageRecievedCallbacks: [],
 		/*
-			Array of callbacks to be called when new stations are discovered [function callback(<station) {}]
+			Array of callbacks to be called when new towers are discovered [function callback(<tower) {}]
 		 */
-		_onStationDiscoveredCallbacks: [],
+		_onTowerDiscoveredCallbacks: [],
 		/*
-			Array of callbacks to be called when a station is updated. [function callback(<station) {}]
+			Array of callbacks to be called when a tower is updated. [function callback(<tower) {}]
 		*/			
-		_onStationUpdatedCallbacks: [],
+		_onTowerUpdatedCallbacks: [],
 		options: {
 			// Send rate (messages per second)
 			sendrate: 1,
@@ -103,7 +103,7 @@ module.exports = function() {
 			port: 8080,
 			// server hostname (self reported)
 			hostname: 'localhost',
-			// timeout in ms after which lost stations are pronounced 'dead'
+			// timeout in ms after which lost towers are pronounced 'dead'
 			killtimeout: 3600000
 		},
 		// Initialise this clacks host
@@ -128,9 +128,9 @@ module.exports = function() {
 				}.bind(this))
 				req.on('end', function() {
 					var payload = JSON.parse(data)					
-					var sourceStation = this.getStation(sha256(payload.sender.hostname + payload.sender.port).toString());
+					var sourceTower = this.getTower(sha256(payload.sender.hostname + payload.sender.port).toString());
 					// Reject payloads from ignore list
-					if (!!sourceStation && sourceStation.status == 'ignore') return
+					if (!!sourceTower && sourceTower.status == 'ignore') return
 					// Todo - add some logic to validate payloads and add abusers to ignore list
 					switch (payload.type) {
 						case 'message':
@@ -144,10 +144,10 @@ module.exports = function() {
 							break
 					}
 					// Expand and heal the network					
-					if (!sourceStation) {
+					if (!sourceTower) {
 						this.expand(payload.sender.hostname, payload.sender.port)
 					} else {
-						this.update(station, 'alive')
+						this.update(tower, 'alive')
 					}										
 					if (!!payload.friend) this.expand(payload.friend.hostname, payload.friend.port)
 					res.writeHead(200)
@@ -158,52 +158,52 @@ module.exports = function() {
 			// Start sending messages
 			var sendInterval = setInterval(function() {
 				if (!this.isEmpty()) {
-					// Pick a station
-					var targetStation = null
+					// Pick a tower
+					var targetTower = null
 					var targetStatus = 'new'
-					var keys = Object.keys(this.stations['new'])
-					// Prioritise new stations
+					var keys = Object.keys(this.towers['new'])
+					// Prioritise new towers
 					if (keys.length > 0) {
-						targetStation = this.stations['new'][keys[0]]
+						targetTower = this.towers['new'][keys[0]]
 					}
-					// If there are no new stations, choose between the alive stations and retrying lost or dead ones
+					// If there are no new towers, choose between the alive towers and retrying lost or dead ones
 					else {					
 						// Default to alive
 						targetStatus = 'alive'
-						keys = Object.keys(this.stations['alive'])
+						keys = Object.keys(this.towers['alive'])
 						var factor = Math.random()
-						// Try lost stations randomly, or we have no alive stations
-						if ((factor > 0.95 || keys.length == 0) && Object.keys(this.stations['lost']).length > 0) {
+						// Try lost towers randomly, or we have no alive towers
+						if ((factor > 0.95 || keys.length == 0) && Object.keys(this.towers['lost']).length > 0) {
 							targetStatus = 'lost'
-							keys = Object.keys(this.stations['lost'])
+							keys = Object.keys(this.towers['lost'])
 						}
-						// Try dead stations randomly, or we have no alive or lost stations
-						if ((factor > 0.999 || keys.length == 0) && Object.keys(this.stations['dead']).length > 0) {
+						// Try dead towers randomly, or we have no alive or lost towers
+						if ((factor > 0.999 || keys.length == 0) && Object.keys(this.towers['dead']).length > 0) {
 							targetStatus = 'dead'
-							keys = Object.keys(this.stations['dead'])
+							keys = Object.keys(this.towers['dead'])
 						}
-						// Pick random station from the target list
-						if (keys.length > 0) targetStation = this.stations[targetStatus][keys[ keys.length * Math.random() << 0]]
+						// Pick random tower from the target list
+						if (keys.length > 0) targetTower = this.towers[targetStatus][keys[ keys.length * Math.random() << 0]]
 					}
 					// Send the message, with callback function on success
 					var nextMessage = this.dequeue()
-					if (!!targetStation) send(
+					if (!!targetTower) send(
 						nextMessage,
-						targetStation.hostname,
-						targetStation.port,
+						targetTower.hostname,
+						targetTower.port,
 						'message',
 						this,
 						function(result) {
 							if (result == '200') {
-								// Update the station
-								this.update(targetStation, 'alive')
+								// Update the tower
+								this.update(targetTower, 'alive')
 							} else {
-								// Update the station - new or previously alive stations become "lost"
-								if (targetStation.status == 'alive' || targetStation.status == 'new') {
-									this.update(targetStation, 'lost')
+								// Update the tower - new or previously alive towers become "lost"
+								if (targetTower.status == 'alive' || targetTower.status == 'new') {
+									this.update(targetTower, 'lost')
 								}
-								else if (targetStation.status == 'lost' && Date.now() - targetStation.time > this.options.killtimeout) {
-									this.update(targetStation, 'dead')
+								else if (targetTower.status == 'lost' && Date.now() - targetTower.time > this.options.killtimeout) {
+									this.update(targetTower, 'dead')
 								}
 								// Return failed message to the queue
 								this.enqueue(nextMessage)
@@ -213,7 +213,7 @@ module.exports = function() {
 				}
 			}.bind(this), 1000 / this.options.sendrate);
 		},
-		// Add a new message to this stations message queue
+		// Add a new message to this towers message queue
 		enqueue: function(message) {
 			this.queue.push(message)
 		},
@@ -229,7 +229,7 @@ module.exports = function() {
 		isEmpty: function() {
 			return this.queue.length == 0
 		},
-		// Anounce our presence to another station
+		// Anounce our presence to another tower
 		announce: function(hostname, port) {
 			send(
 				null,
@@ -239,36 +239,36 @@ module.exports = function() {
 				this,
 				function(result) {
 					if (result == '200') {
-						// Update the station
+						// Update the tower
 						this.expand(hostname, port)
 					}
 				}.bind(this)
 			);
 		},
-		// Retrieve a station by identifier, or null
-		getStation: function(identifier) {
-			if (this.stations['ignored'].hasOwnProperty(identifier)) return this.stations['ignored'][identifier]
-			if (this.stations['alive'].hasOwnProperty(identifier)) return this.stations['ignored'][identifier]
-			if (this.stations['new'].hasOwnProperty(identifier)) return this.stations['ignored'][identifier]
-			if (this.stations['dead'].hasOwnProperty(identifier)) return this.stations['ignored'][identifier]
-			if (this.stations['lost'].hasOwnProperty(identifier)) return this.stations['ignored'][identifier]
+		// Retrieve a tower by identifier, or null
+		getTower: function(identifier) {
+			if (this.towers['ignored'].hasOwnProperty(identifier)) return this.towers['ignored'][identifier]
+			if (this.towers['alive'].hasOwnProperty(identifier)) return this.towers['ignored'][identifier]
+			if (this.towers['new'].hasOwnProperty(identifier)) return this.towers['ignored'][identifier]
+			if (this.towers['dead'].hasOwnProperty(identifier)) return this.towers['ignored'][identifier]
+			if (this.towers['lost'].hasOwnProperty(identifier)) return this.towers['ignored'][identifier]
 		},
-		// Add a new station to the clacks network
+		// Add a new tower to the clacks network
 		expand: function(hostname, port) {
 			var identifier = sha256(hostname+port).toString();
 
-			// Don't add this actual station to the list
+			// Don't add this actual tower to the list
 			if (hostname == this.options.hostname && port == this.options.port) return;
 
-			// Don't add existing stations
-			if (this.stations['ignored'].hasOwnProperty(identifier)
-				|| this.stations['alive'].hasOwnProperty(identifier)
-				|| this.stations['new'].hasOwnProperty(identifier)
-				|| this.stations['dead'].hasOwnProperty(identifier)
-				|| this.stations['lost'].hasOwnProperty(identifier)) return
+			// Don't add existing towers
+			if (this.towers['ignored'].hasOwnProperty(identifier)
+				|| this.towers['alive'].hasOwnProperty(identifier)
+				|| this.towers['new'].hasOwnProperty(identifier)
+				|| this.towers['dead'].hasOwnProperty(identifier)
+				|| this.towers['lost'].hasOwnProperty(identifier)) return
 
-			// Add the new station
-			this.stations['new'][identifier] = {
+			// Add the new tower
+			this.towers['new'][identifier] = {
 				identifier: identifier,
 				hostname: hostname,
 				port: port,
@@ -276,41 +276,41 @@ module.exports = function() {
 				time: Date.now()
 			}
 
-			// Trigger new station added event
-			this._onStationDiscoveredCallbacks.forEach(function(cb){
-				cb(this.stations['new'][identifier])
+			// Trigger new tower added event
+			this._onTowerDiscoveredCallbacks.forEach(function(cb){
+				cb(this.towers['new'][identifier])
 			}.bind(this))
 		},
-		// Updates a station to specifed status
-		update: function(station, status) {
-			// No need to update station if status remains the same
-			if (station.status == status) return
-			// Remove station from old status
-			delete(this.stations[station.status][station.identifier])
-			// Update station status
-			station.status = status
-			station.time = Date.now()
-			// Add station to new status
-			this.stations[station.status][station.identifier] = station
-			this._onStationUpdatedCallbacks.forEach(function(cb){
-				cb(this.stations[station.status][station.identifier])
+		// Updates a tower to specifed status
+		update: function(tower, status) {
+			// No need to update tower if status remains the same
+			if (tower.status == status) return
+			// Remove tower from old status
+			delete(this.towers[tower.status][tower.identifier])
+			// Update tower status
+			tower.status = status
+			tower.time = Date.now()
+			// Add tower to new status
+			this.towers[tower.status][tower.identifier] = tower
+			this._onTowerUpdatedCallbacks.forEach(function(cb){
+				cb(this.towers[tower.status][tower.identifier])
 			}.bind(this))
 		},
-		// Retrieve current known stations statuses
+		// Retrieve current known towers statuses
 		survey: function() {
-			return this.stations
+			return this.towers
 		},
 		// Register callback triggered after a message is recieved
 		onMessageRecieved: function(callback) {
 			this._onMessageRecievedCallbacks.push(callback)
 		},
-		// Register callback triggered after a new station is discovered
-		onStationDiscovered: function(callback) {
-			this._onStationDiscoveredCallbacks.push(callback)
+		// Register callback triggered after a new tower is discovered
+		onTowerDiscovered: function(callback) {
+			this._onTowerDiscoveredCallbacks.push(callback)
 		},
-		// Register callback triggered after a new station is discovered
-		onStationUpdated: function(callback) {
-			this._onStationUpdatedCallbacks.push(callback)
+		// Register callback triggered after a new tower is discovered
+		onTowerUpdated: function(callback) {
+			this._onTowerUpdatedCallbacks.push(callback)
 		},
 	}
 }
