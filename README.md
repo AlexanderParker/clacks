@@ -27,7 +27,7 @@ I think it has potential for some interesting niche applications, so I'd welcome
 * Only Tower 1 and 2 are explicitly aware of each other.
 * Tower 1 enqueues a message into its message queue
 * Tower 3 announces itself to Tower 1
-* Tower 2 and Tower 3 should quickly learn of each others' existance through Tower 1's interactions with Tower 3
+* Tower 2 and Tower 3 should quickly learn of each others' existence through Tower 1's interactions with Tower 3
 
 *Step 2: Run test2.js*
 
