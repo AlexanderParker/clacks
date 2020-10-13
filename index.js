@@ -179,6 +179,9 @@ module.exports = function(sslKey, sslCert) {
 						}.bind(this)
 					)
 				}
+				else {
+					// Todo - perhaps allow a tower with no messages to announce itself automatically?
+				}
 			}.bind(this), 1000 / this.options.sendrate)
 		},
 		// Add a new message to this towers message queue
