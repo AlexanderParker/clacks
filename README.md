@@ -2,7 +2,7 @@
 
 Clacks is a peer to peer network messaging utility. There is no permanent data storage on any individual node; data only exists within the temporary message queue within an individual peer's memory, and on the network overhead as data is transmitted between peers.
 
-The total data held within the network in any given second of time is a function of the average network latency between all peers multiplied by the number of messages sent per second (across all peers), plus the contents of the queues of each peer.
+The total data held within the network for any given second is a function of the average network latency between all peers multiplied by the number of messages sent per second (across all peers), plus the contents of the queues of each peer.
 
 The system utilises three basic concepts to achieve this outcome:
 
