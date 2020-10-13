@@ -54,16 +54,6 @@ If you consider the entire network as one big storage device, the total data hel
       // do something with tower
     })
 
-# Is it production-ready?
-
-Not yet.
-
-You can download this repository and run the test scripts per the testing steps below if you'd like a better idea of how it works.
-
-It's not production ready at this stage. It's an experimental approach that could definitely use lots of testing and pull requests.
-
-I think it has potential for some interesting niche applications, so I'd welcome any help hardening it.
-
 # Testing
 
 There are a number of basic test scripts in the /tests folder. Refer to the README.md in the /tests folder for further instruction on testing.
@@ -98,11 +88,17 @@ There are basic capabilities baked in to discover, reject and heal peer connecti
 * More specialised client applications will be able to validate and filter inbound and outbound messages, and implement controls to ignore peers.
 * Events will be added to give client applications the necessary tools to achieve this.
 
+# Is it production-ready?
+
+Not yet. You can download this repository and run the test scripts per the testing steps below if you'd like a better idea of how it works.
+
+It's not production ready at this stage. It's an experimental approach that could definitely use lots of testing and pull requests.
+
+I think it has potential for some interesting niche applications, so I'd welcome any help hardening it.
+
 # Fun toy. Any applications?
 
-Definitely. An application could use these simple mechanisms and introduce measures to combat flooding, netsplits, and interference to create a global ephemeral storage network, where data does not reside in any one specific location but instead is constantly alive "overhead".
-
-Carefully crafted message formats using multiple layers of strong key-pair encryption - for instance a layer for the message itself, and another layer that packages messages between peers, would allow users to release data anonymously into the clacks, and later retrieve it from any access point. As there is no central server, and as all messages bouncing between peers would be similarly encrypted, it would be hard to discern where any one piece of information was first introduced, or who (if anyone) ever accessed it.
+As the basic functionality takes no view on the content of messages or how they could be used, an application could use the basic mechanisms for any concievable system that could benefit from data that has no fixed abode.
 
 Large files can be broken into multiple messages, and resequenced as they're plucked from overhead at any other point in the network, assuming the client is able to determine the correct sequence and contents of the file (e.g. has the necessary keys to identify it as relevant to them).
 
