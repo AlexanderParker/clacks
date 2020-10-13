@@ -12,9 +12,15 @@ The system utilises three basic concepts to achieve this outcome:
 
 # Basic Usage
 
+**Installing**
+
+    > npm install clacks-p2p
+
+Also, you will need to have an SSL certificate and key handy. You can generate a self-signed one for testing (check out the **/test** folder and code for example)
+
 **Starting a clacks tower**
 
-    Clacks = import('clacks')
+    Clacks = require('clacks-p2p')
     tower = Clacks()
     tower.init(key, cert)
 
