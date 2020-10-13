@@ -63,10 +63,6 @@ When calling **init()**, you can pass any of the following options (defaults lis
       killtimeout: 3600000
     }
 
-**sendrate**
-
-This determines how many messages a second the clacks node will attempt to send. Currently this works off a very rudimentary setInterval mechanism. In the future this will likely be changed to a byterate based system.
-
 **hostname**
 
 The hostname that other peers can use to find the clacks tower. This is sent to other towers when announcing, or when messages are sent.
@@ -74,6 +70,10 @@ The hostname that other peers can use to find the clacks tower. This is sent to 
 **port**
 
 The port that the clacks tower will run on. This is sent to other towers when announcing, or when messages are sent.
+
+**sendrate**
+
+This determines how many messages a second the clacks node will attempt to send. Currently this works off a very rudimentary setInterval mechanism. In the future this will likely be changed to a byterate based system.
 
 **killtimeout**
 
