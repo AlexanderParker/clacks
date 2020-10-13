@@ -85,10 +85,15 @@ module.exports = function(sslKey, sslCert) {
 					data.push(chunk)
 				}.bind(this))
 				req.on('end', function() {
-					var payload = JSON.parse(data)					
-					var sourceTower = this.getTower(sha256(payload.sender.hostname + payload.sender.port).toString());
+					var payload = JSON.parse(data),
+						identifier = sha256(payload.sender.hostname + payload.sender.port).toString(),
+						sourceTower = this.getTower(identifier)						
 					// Reject payloads from ignore list
-					if (!!sourceTower && sourceTower.status == 'ignored') return
+					if (!!sourceTower && sourceTower.status == 'ignored') {
+						res.writeHead(403)
+						res.end()
+						return
+					}
 					// Todo - add some logic to validate payloads and add abusers to ignored list
 					switch (payload.type) {
 						case 'message':
@@ -167,9 +172,9 @@ module.exports = function(sslKey, sslCert) {
 								this.enqueue(nextMessage)
 							}
 						}.bind(this)
-					);
+					)
 				}
-			}.bind(this), 1000 / this.options.sendrate);
+			}.bind(this), 1000 / this.options.sendrate)
 		},
 		// Add a new message to this towers message queue
 		enqueue: function(message) {
@@ -201,7 +206,7 @@ module.exports = function(sslKey, sslCert) {
 						this.expand(hostname, port)
 					}
 				}.bind(this)
-			);
+			)
 		},
 		// Retrieve a tower by identifier, or null
 		getTower: function(identifier) {
@@ -218,7 +223,7 @@ module.exports = function(sslKey, sslCert) {
 				targetStatus = status || 'new'
 
 			// Don't add this actual tower to the list
-			if (hostname == this.options.hostname && port == this.options.port) return;
+			if (hostname == this.options.hostname && port == this.options.port) return
 
 			// Don't add existing towers
 			if (this.getTower(identifier)) return
@@ -240,7 +245,7 @@ module.exports = function(sslKey, sslCert) {
 		// Updates a tower to specifed status
 		update: function(tower, status) {
 			// No need to update tower if status remains the same
-			if (tower.status == status) return
+			if (tower.status == status || tower.status == 'ignored') return
 			// Remove tower from old status
 			delete(this.towers[tower.status][tower.identifier])
 			// Update tower status
@@ -256,7 +261,7 @@ module.exports = function(sslKey, sslCert) {
 		ignore: function(hostname, port) {
 			var identifier = sha256(hostname+port).toString(),
 				tower = this.getTower(identifier)
-				
+
 			if (!!tower) {
 				this.update(tower, 'ignored')
 			} else {
@@ -310,17 +315,17 @@ module.exports = function(sslKey, sslCert) {
 			}
 		}
 		
-		const req = https.request(options, (res) => {
+		const req = https.request(options, function(res) {
 			res.on('data', d => {
 				// Do nothing - perhaps in the future we could return "friends" whenever a message is received.
 			})
 			res.on('end', () => {
-				callback(res.statusCode);
-			});
+				callback(res.statusCode)
+			})
 		})
 
-		req.on('error', error => {
-			callback(error);
+		req.on('error', function(error) {
+			callback(error)
 		})
 
 		// Execute the HTTP request
