@@ -126,6 +126,7 @@ Worth noting about these statuses:
 * Tuning in: An application specifies a particular message format which includes a way of tagging or categorising messages. Users can set up a clacks tower and if any messages match their personal filters, these can be aggregated into a local list or collection, like tuning into a radio station.
 * Filtering: An application can decide which types of messages it wants to forward or reject, and ignore towers that don't meet their specific criteria.
 * Transforming: An application could aggregate, embellish, transform and retransmit messages, perhaps enabling interoperability between different types of consumer and broadcast applications on the network.
+* Bifurcating: An application could split individual messages into multiple sub-messages, or recombine sub-messages.
 * Archiving: An application could archive any or all messages it touches.
 * Persisting: An application, possibly based on an archival system, could reintroduce messages that it hasn't seen in a while, to provide persistance and robustness to the entire network.
 * Stonewalling: A filtering application could deliberately accept then refuse to retransmit messages, effectively deleting that piece of data from the network if it is not otherwise archived or persisted.
