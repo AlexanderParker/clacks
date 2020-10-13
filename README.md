@@ -54,15 +54,15 @@ The system utilises three basic concepts to achieve this outcome:
 
 # Testing
 
-There are a number of basic test scripts in the /tests folder. Refer to the README.md in the /tests folder for further instruction on testing.
+There are a number of basic test scripts in the **/test** folder. Refer to the **README.md** in the **/test** folder for further instruction on testing.
 
 # Peer discovery
 
-There are basic capabilities baked in to discover, reject and heal peer connections, which can be expanded in the future.
+There are basic capabilities baked in to discover, reject and heal peer connections.
 
-* A new tower has no innate awareness or ability to discover any other peers as there is no central authority.
-* Towers must be explicitly be told the hostname and port of at least one other peer.
-* Every time a tower transmits a message to a peer tower, it includes a random "friend" - a known "active" peer.
+* A new tower has no innate awareness or ability to discover any other peers as there is no central authority. Applications can concievably store local lists of hosts or fetch them from their own central repositories.
+* Towers must be explicitly be told the hostname and port of at least one other peer. Applications can do this by calling the **expand(hostname, port)** or **announce(hostname, port)** functions.
+* Every time a tower transmits a message to a peer tower, it includes a random "friend" - a known "active" peer. This is added to the local hosts list as a "new" tower.
 
 # Peer Statuses
 
