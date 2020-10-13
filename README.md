@@ -121,6 +121,18 @@ Worth noting about these statuses:
 * Broad scale testing to determine weaknesses and mitigations
 * Publish as an npm package
 
+# Application ideas
+
+* Tuning in: An application specifies a particular message format which includes a way of tagging or categorising messages. Users can set up a clacks tower and if any messages match their personal filters, these can be aggregated into a local list or collection, like tuning into a radio station.
+* Filtering: An application can decide which types of messages it wants to forward or reject, and ignore towers that don't meet their specific criteria.
+* Transforming: An application could aggregate, embellish, transform and retransmit messages, perhaps enabling interoperability between different types of consumer and broadcast applications on the network.
+* Archiving: An application could archive any or all messages it touches.
+* Persisting: An application, possibly based on an archival system, could reintroduce messages that it hasn't seen in a while, to provide persistance and robustness to the entire network.
+* Stonewalling: A filtering application could deliberately accept then refuse to retransmit messages, effectively deleting that piece of data from the network if it is not otherwise archived or persisted.
+* Corrupting: A transforming application could deliberately modify messages prior to retransmital in a way that interferes with or undermines the original purpose of the message.
+* Flooding: A flooding application could deliberately rebroadcast a selection of messages many times, to overload message queues for whatever purpose.
+* Crawling: A crawling application could craft messages that contain a growing list of known towers and use these messages to expand awareness of the full network.
+
 # A small tribute
 
 https://discworld.fandom.com/wiki/Clacks
