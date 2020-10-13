@@ -133,6 +133,7 @@ Worth noting about these statuses:
 * Corrupting: A transforming application could deliberately modify messages prior to retransmital in a way that interferes with or undermines the original purpose of the message.
 * Flooding: A flooding application could deliberately rebroadcast a selection of messages many times, to overload message queues for whatever purpose.
 * Crawling: A crawling application could craft messages that contain a growing list of known towers and use these messages to expand awareness of the full network.
+* Hybrid: A hybrid clacks application would combine base concepts, such as tuning in, filtering, transforming, bifurcating, archiving, persisting, stonewalling, corrupting, flooding and crawling, to achieve its purposes.
 
 # A small tribute
 
