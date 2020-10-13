@@ -113,23 +113,10 @@ Worth noting about these statuses:
 * More specialised client applications will be able to validate and filter inbound and outbound messages, and implement controls to ignore peers.
 * Events will be added to give client applications the necessary tools to achieve this.
 
-# Is it production-ready?
-
-Not yet. You can download this repository and run the test scripts per the testing steps below if you'd like a better idea of how it works.
-
-It's not production ready at this stage. It's an experimental approach that could definitely use lots of testing and pull requests.
-
-I think it has potential for some interesting niche applications, so I'd welcome any help hardening it.
-
-# Fun toy. Any applications?
-
-As the basic functionality takes no view on the content of messages or how they could be used, an application could use the basic mechanisms for any concievable system that could benefit from data that has no fixed abode.
-
-Large files can be broken into multiple messages, and resequenced as they're plucked from overhead at any other point in the network, assuming the client is able to determine the correct sequence and contents of the file (e.g. has the necessary keys to identify it as relevant to them).
-
 # Important next steps
 
-* Create proof of concept application
+* Expand event listeners to improve usability.
+* Create proof of concept application(s)
 * Broad scale testing to determine weaknesses and mitigations
 * Publish as an npm package
 
