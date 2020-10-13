@@ -10,9 +10,6 @@ The system utilises three basic concepts to achieve this outcome:
 2. When a peer recieves a message, the message is added to the peers queue.
 3. Messages only exist in volatile memory of a random peer, or are in transit.
 
-There are also extremely basic capabilities to discover, reject and heal peer connections, which can be expanded in the future.
-
-
 If you consider the entire network as one big storage device, the total data held within the network is a function of the average network latency multiplied by the number of peers.
 
 # Basic Usage
@@ -97,7 +94,7 @@ Note: keep test.js running in another console while you run test3.js.
 
 # P2P Statuses
 
-Towers have a list of peer towers. Each of these peers has a status as follows:
+Clacks towers can maintain a list of peer towers. Each of these peers has a status as follows:
 
 * **new** - Any "new" towers added start in this state. When deciding which peers to message next, "new" peers always take first priority.
 * **alive** - Any peers that the tower has had success communicating with are considered "alive". If there are no "new" peers, there is a 95% chance an "alive" peer will be chosen as the next message recipient.
@@ -108,7 +105,15 @@ Towers have a list of peer towers. Each of these peers has a status as follows:
 Worth noting about these statuses:
 
 * "dead" and "lost" towers are reinstated to "alive" immediately upon a successful message transaction, whether as sender or recipient.
-* Currently no mechanism is in place to add towers to the "ignored" list. I have not decided yet whether to leave this up to the client applications to decide on their own implementations.
+* Currently no mechanism is in place to automate the process of adding towers to the "ignored" list. I have not decided yet whether to leave this up to the client applications to decide on their own implementations.
+
+# Peer discovery
+
+There are basic capabilities baked in to discover, reject and heal peer connections, which can be expanded in the future.
+
+* A new tower has no innate awareness or ability to discover any other peers as there is no central authority.
+* Towers must be explicitly be told the hostname and port of at least one other peer.
+* Every time a tower transmits a message to a peer tower, it includes a random "friend" - a known "active" peer.
 
 # Fun toy. Any applications?
 
