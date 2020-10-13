@@ -116,6 +116,7 @@ Worth noting about these statuses:
 # Important next steps
 
 * Expand event listeners to improve usability.
+* Add ability to ignore a specific peer tower.
 * Create proof of concept application(s)
 * Broad scale testing to determine weaknesses and mitigations
 * Publish as an npm package
