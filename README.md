@@ -110,10 +110,7 @@ Clacks towers can maintain a list of peer towers. Each of these peers has a stat
 * **dead** - Any peers that the tower has persistently failed to communicate are moved to the "dead" list. They will remain here indefinitely, with a 0.001% chance of being selected as a message recipient.
 * **ignored** - Any messages from peer towers in the ignore list are rejected, as are announce attempts, and of course there will be no outbound attempts to contact ignored peers.
 
-Worth noting about these statuses:
-
-* "dead" and "lost" towers are reinstated to "alive" immediately upon a successful message transaction, whether as sender or recipient.
-* Currently no mechanism is in place to automate the process of adding towers to the "ignored" list. I have not decided yet whether to leave this up to the client applications to decide on their own implementations.
+*Note: "dead" and "lost" towers are reinstated to "alive" immediately upon a successful message transaction, whether as sender or recipient.*
 
 # Message validation and filtering
 
@@ -125,7 +122,6 @@ Worth noting about these statuses:
 # Important next steps
 
 * Expand event listeners to improve usability.
-* Add ability to ignore a specific peer tower.
 * Create proof of concept application(s)
 * Broad scale testing to determine weaknesses and mitigations
 * Publish as an npm package
