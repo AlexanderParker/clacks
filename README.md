@@ -116,10 +116,9 @@ Large files can be broken into multiple messages, and resequenced as they're plu
 
 # Important next steps
 
-* Switch to HTTPS
 * Create proof of concept application
 * Broad scale testing to determine weaknesses and mitigations
-* Pull the basic proof of concept test scripts out of the repo and publish as an npm package
+* Publish as an npm package
 
 # A small tribute
 
