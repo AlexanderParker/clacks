@@ -85,11 +85,11 @@ There are a number of basic test scripts in the **/test** folder. Refer to the *
 
 # Peer discovery
 
-There are basic capabilities baked in to discover, reject and heal peer connections.
+There are basic capabilities baked in to discover, reject, and heal peer connections.
 
 * A new tower has no innate awareness or ability to discover any other peers as there is no central authority. Applications can concievably store local lists of hosts or fetch them from their own central repositories.
 * Applications can explicitly add peer towers by calling the **expand(hostname, port)** or **announce(hostname, port)** functions.
-* Every time a tower transmits a message to a peer tower, it includes a random "friend" - a known "active" peer. This is added to the local hosts list as a "new" tower.
+* Every time a tower transmits a message to a peer tower, it includes a random "friend" - a known "active" peer. This is added to the local host's peer list as a "new" tower.
 
 # Peer Statuses
 
