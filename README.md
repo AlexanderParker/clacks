@@ -58,7 +58,15 @@ If you consider the entire network as one big storage device, the total data hel
 
 There are a number of basic test scripts in the /tests folder. Refer to the README.md in the /tests folder for further instruction on testing.
 
-# P2P Statuses
+# Peer discovery
+
+There are basic capabilities baked in to discover, reject and heal peer connections, which can be expanded in the future.
+
+* A new tower has no innate awareness or ability to discover any other peers as there is no central authority.
+* Towers must be explicitly be told the hostname and port of at least one other peer.
+* Every time a tower transmits a message to a peer tower, it includes a random "friend" - a known "active" peer.
+
+# Peer Statuses
 
 Clacks towers can maintain a list of peer towers. Each of these peers has a status as follows:
 
@@ -72,14 +80,6 @@ Worth noting about these statuses:
 
 * "dead" and "lost" towers are reinstated to "alive" immediately upon a successful message transaction, whether as sender or recipient.
 * Currently no mechanism is in place to automate the process of adding towers to the "ignored" list. I have not decided yet whether to leave this up to the client applications to decide on their own implementations.
-
-# Peer discovery
-
-There are basic capabilities baked in to discover, reject and heal peer connections, which can be expanded in the future.
-
-* A new tower has no innate awareness or ability to discover any other peers as there is no central authority.
-* Towers must be explicitly be told the hostname and port of at least one other peer.
-* Every time a tower transmits a message to a peer tower, it includes a random "friend" - a known "active" peer.
 
 # Message validation and filtering
 
