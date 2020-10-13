@@ -118,14 +118,13 @@ Clacks towers can maintain a list of peer towers. Each of these peers has a stat
 * The intention is to keep this library agnostic from client application needs. As such there is no baked-in message validation or filtering.
 * A raw clacks host will accept, enqueue, and forward any message from any source.
 * More specialised client applications will be able to validate and filter inbound and outbound messages, and implement controls to ignore peers.
-* Events will be added to give client applications the necessary tools to achieve this.
+* Events may be added as needed to give client applications the necessary tools to achieve this.
 
 # Important next steps
 
-* Expand event listeners to improve usability.
-* Create proof of concept application(s)
 * Broad scale testing to determine weaknesses and mitigations
-* Publish as an npm package
+* Bulk test large numbers of clacks towers to profile message propagation dynamics
+* Create proof of concept application(s)
 
 # Application ideas
 
