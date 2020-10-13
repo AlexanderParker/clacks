@@ -49,6 +49,7 @@ Also, you will need to have an SSL certificate and key handy. You can generate a
     // Message received:
     tower.onMessageReceived(function(payload){
       // do something with payload
+      // Setting payload.message to null, false, or undefined will prevent it from being added to the local queue.
     })
 
     // New remote tower discovered:

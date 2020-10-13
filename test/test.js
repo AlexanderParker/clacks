@@ -15,14 +15,24 @@ var clacks1 = clacks(key, cert),
 // Monitoring - message recieved
 clacks1.onMessageRecieved(function(payload) {
 	console.log("\nTower 1 recieved message: " + payload.message + " from " + payload.sender.hostname + ":" + payload.sender.port)
-	peekAll()
 })
 clacks2.onMessageRecieved(function(payload) {
 	console.log("\nTower 2 recieved message: " + payload.message + " from " + payload.sender.hostname + ":" + payload.sender.port)
-	peekAll()
 })
 clacks3.onMessageRecieved(function(payload) {
 	console.log("\nTower 3 recieved message: " + payload.message + " from " + payload.sender.hostname + ":" + payload.sender.port)
+})
+// Monitoring - message queued
+clacks1.onMessageQueued(function(message) {
+	console.log("\nTower 1 message queued: " + message)
+	peekAll()
+})
+clacks2.onMessageQueued(function(message) {
+	console.log("\nTower 2 message queued: " + message)
+	peekAll()
+})
+clacks3.onMessageQueued(function(message) {
+	console.log("\nTower 3 message queued: " + message)
 	peekAll()
 })
 // Monitoring - Tower discovered

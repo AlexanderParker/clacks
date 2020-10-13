@@ -26,9 +26,17 @@ Note: keep test.js running in another console while you run test3.js.
 
 *Step 4: Run test-ignore.js*
 
-Note: keep test.js and test3.js running in another console while you run test3.js.
+Note: keep test.js and test3.js running in another console while you run test-ignore.js.
 
 * This sets up clacks tower #5 on port 8005
 * Tower 5 announces itself to Tower 1
 * Tower 5 ignores Tower 2
 * You should not observe any incoming messages being accepted from Tower 2
+
+*Step 5: Run test-reverse.js*
+
+Note: keep at least test.js running in another console while you run test-reverse.js.
+
+* This sets up clacks tower #6 on port 8006
+* Tower 6 announces itself to Tower 1
+* Any time tower 6 recieves a message, it reverses the message string.

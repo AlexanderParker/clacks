@@ -48,13 +48,17 @@ module.exports = function(sslKey, sslCert) {
 		 */
 		_onMessageRecievedCallbacks: [],
 		/*
-			Array of callbacks to be called when new towers are discovered [function callback(<tower) {}]
+			Array of callbacks to be called when new towers are discovered [function callback(<tower>) {}]
 		 */
 		_onTowerDiscoveredCallbacks: [],
 		/*
-			Array of callbacks to be called when a tower is updated. [function callback(<tower) {}]
-		*/			
+			Array of callbacks to be called when a tower is updated. [function callback(<tower>) {}]
+		*/
 		_onTowerUpdatedCallbacks: [],
+		/*
+			Array of callbacks to be called when a message is queued. [function callback(<message>) {}]
+		*/
+		_onMessageQueuedCallbacks: [],
 		options: {
 			// Send rate (messages per second)
 			sendrate: 1,
@@ -97,10 +101,10 @@ module.exports = function(sslKey, sslCert) {
 					// Todo - add some logic to validate payloads and add abusers to ignored list
 					switch (payload.type) {
 						case 'message':
-							this.enqueue(payload.message)
 							this._onMessageRecievedCallbacks.forEach(function(cb){
 								cb(payload)
 							})
+							this.enqueue(payload.message)
 							break
 						case 'announce':
 						default:
@@ -113,6 +117,7 @@ module.exports = function(sslKey, sslCert) {
 						this.update(sourceTower, 'alive')
 					}										
 					if (!!payload.friend) this.expand(payload.friend.hostname, payload.friend.port)
+					// Finalise
 					res.writeHead(200)
 					res.end()
 				}.bind(this))
@@ -178,7 +183,12 @@ module.exports = function(sslKey, sslCert) {
 		},
 		// Add a new message to this towers message queue
 		enqueue: function(message) {
-			this.queue.push(message)
+			if (!!message) {
+				this.queue.push(message)
+				this._onMessageQueuedCallbacks.forEach(function(cb){
+					cb(message)
+				}.bind(this))
+			}
 		},
 		// Remove and return a message from the head of the queue
 		dequeue: function() {
@@ -284,6 +294,10 @@ module.exports = function(sslKey, sslCert) {
 		// Register callback triggered after a new tower is discovered
 		onTowerUpdated: function(callback) {
 			this._onTowerUpdatedCallbacks.push(callback)
+		},
+		// Register callback triggered after a new message is queued
+		onMessageQueued: function(callback) {
+			this._onMessageQueuedCallbacks.push(callback)
 		},
 	}
 

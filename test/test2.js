@@ -12,7 +12,10 @@ var clacks4 = clacks(key, cert)
 
 // Set up monitoring - message recieved
 clacks4.onMessageRecieved(function(payload) {
-	console.log("\nTower 4 recieved message: " + payload.message + " from " + payload.sender.hostname + ":" + payload.sender.port)
+	console.log("\nTower 4 recieved message: " + payload.message + " from " + payload.sender.hostname + ":" + payload.sender.port)	
+})
+// Monitoring - message queued
+clacks4.onMessageQueued(function(message) {
 	console.log("Tower 4 message queue:", clacks4.peek())
 })
 // Set up monitoring - new tower discovered
