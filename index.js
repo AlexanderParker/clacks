@@ -212,31 +212,29 @@ module.exports = function(sslKey, sslCert) {
 			if (this.towers['lost'].hasOwnProperty(identifier)) return this.towers['lost'][identifier]
 		},
 		// Add a new tower to the clacks network
-		expand: function(hostname, port) {
-			var identifier = sha256(hostname+port).toString();
+		expand: function(hostname, port, status) {		
+
+			var identifier = sha256(hostname+port).toString()
+				targetStatus = status || 'new'
 
 			// Don't add this actual tower to the list
 			if (hostname == this.options.hostname && port == this.options.port) return;
 
 			// Don't add existing towers
-			if (this.towers['ignored'].hasOwnProperty(identifier)
-				|| this.towers['alive'].hasOwnProperty(identifier)
-				|| this.towers['new'].hasOwnProperty(identifier)
-				|| this.towers['dead'].hasOwnProperty(identifier)
-				|| this.towers['lost'].hasOwnProperty(identifier)) return
+			if (this.getTower(identifier)) return
 
 			// Add the new tower
-			this.towers['new'][identifier] = {
+			this.towers[targetStatus][identifier] = {
 				identifier: identifier,
 				hostname: hostname,
 				port: port,
-				status: 'new',
+				status: targetStatus,
 				time: Date.now()
 			}
 
 			// Trigger new tower added event
 			this._onTowerDiscoveredCallbacks.forEach(function(cb){
-				cb(this.towers['new'][identifier])
+				cb(this.towers[targetStatus][identifier])
 			}.bind(this))
 		},
 		// Updates a tower to specifed status
@@ -253,6 +251,18 @@ module.exports = function(sslKey, sslCert) {
 			this._onTowerUpdatedCallbacks.forEach(function(cb){
 				cb(this.towers[tower.status][tower.identifier])
 			}.bind(this))
+		},
+		// Ignores a specified hostname and port
+		ignore: function(hostname, port) {
+			var identifier = sha256(hostname+port).toString(),
+				tower = this.getTower(identifier)
+				
+			if (!!tower) {
+				this.update(tower, 'ignored')
+			} else {
+				// Add the new tower directly to the ignored list
+				this.expand(hostname, port, 'ignored')
+			}
 		},
 		// Retrieve current known towers statuses
 		survey: function() {
