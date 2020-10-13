@@ -17,7 +17,7 @@ If you consider the entire network as one big storage device, the total data hel
 
     Clacks = import('clacks')
     tower = Clacks()
-    tower.init()
+    tower.init(key, cert)
 
 **Interacting with the local clacks tower**
 
