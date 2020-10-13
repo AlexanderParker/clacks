@@ -115,6 +115,13 @@ There are basic capabilities baked in to discover, reject and heal peer connecti
 * Towers must be explicitly be told the hostname and port of at least one other peer.
 * Every time a tower transmits a message to a peer tower, it includes a random "friend" - a known "active" peer.
 
+# Message validation and filtering
+
+* The intention is to keep this library agnostic from client application needs. As such there is no baked-in message validation or filtering.
+* A raw clacks host will accept, enqueue, and forward any message from any source.
+* More specialised client applications will be able to validate and filter inbound and outbound messages, and implement controls to ignore peers.
+* Events will be added to give client applications the necessary tools to achieve this.
+
 # Fun toy. Any applications?
 
 Definitely. An application could use these simple mechanisms and introduce measures to combat flooding, netsplits, and interference to create a global ephemeral storage network, where data does not reside in any one specific location but instead is constantly alive "overhead".
