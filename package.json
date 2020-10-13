@@ -1,10 +1,10 @@
 {
-  "name": "clacks",
+  "name": "clacks-p2p",
   "version": "0.1.0",
-  "description": "Clacks Network Protocol",
+  "description": "Clacks Peer to Peer Messaging System",
   "main": "index.js",
   "scripts": {
-    "test": "test.js"
+    "test": "test/test.js"
   },
   "repository": {
     "type": "git",
