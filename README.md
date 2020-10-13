@@ -41,6 +41,9 @@ Also, you will need to have an SSL certificate and key handy. You can generate a
     // Announce this tower to a remote tower, and additionally add the remote tower to the local towers list
     tower.announce(hostname, port)
 
+    // Ignore a specified tower by hostname and port
+    tower.ignore(hostname, port)
+
 **Event listeners**
 
     // Message received:
