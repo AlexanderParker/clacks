@@ -1,52 +1,11 @@
 var sha256 = require('crypto-js/sha256'),
-	http = require('http')
+	https = require('https')
 
-function send(message, hostname, port, type, context, callback) {
-	// Attach a random "friend" tower to the message to help the network grow.
-	var keys = Object.keys(context.towers['alive']),
-		friend = context.towers['alive'][keys[ keys.length * Math.random() << 0]]
+module.exports = function(sslKey, sslCert) {
+	// SSL certificate and key is mandatory
+	if (!sslKey || !sslCert) throw 'Undefined HTTPS key and/or certificate.'
 
-	// Construct the payload
-	const data = JSON.stringify({
-		message: message,
-		hostname: hostname,
-		port: port,
-		type: type,
-		sender: {hostname: context.options.hostname, port: context.options.port},
-		friend: friend
-	})
-
-	// set up  POST http options
-	const options = {
-		hostname: hostname,
-		port: port,
-		path: '/',
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'Content-Length': data.length
-		}
-	}
-	
-	const req = http.request(options, res => {
-		res.on('data', d => {
-			// Do nothing - perhaps in the future we could return "friends" whenever a message is received.
-		})
-		res.on('end', () => {
-			callback(res.statusCode);
-		});
-	})
-
-	req.on('error', error => {
-		callback(error);
-	})
-
-	// Execute the HTTP request
-	req.write(data)
-	req.end()
-}
-
-module.exports = function() {
+	// Generate and return the clacks server object
 	return {
 		/*
 			Towers are other known clacks hosts. We keep track of their address,
@@ -106,8 +65,8 @@ module.exports = function() {
 			// timeout in ms after which lost towers are pronounced 'dead'
 			killtimeout: 3600000
 		},
-		// Initialise this clacks host
-		init: function(options) {
+		// Initialise this clacks host (options is optional)
+		init: function(options) {			
 			// Parse options - todo, make generic
 			if (typeof options != 'undefined') {
 				this.options.sendrate = options.sendrate || this.options.sendrate
@@ -116,7 +75,10 @@ module.exports = function() {
 			}
 
 			// Start listening for messages
-			var server = http.createServer(function(req,res) {
+			var server = https.createServer({
+				key: sslKey,
+				cert: sslCert
+			}, function(req, res) {
 				// Assemble the received message data
 				var data = []
 				req.on('data', function(chunk) {
@@ -193,7 +155,7 @@ module.exports = function() {
 							if (result == '200') {
 								// Update the tower
 								this.update(targetTower, 'alive')
-							} else {
+							} else {								
 								// Update the tower - new or previously alive towers become "lost"
 								if (targetTower.status == 'alive' || targetTower.status == 'new') {
 									this.update(targetTower, 'lost')
@@ -308,5 +270,51 @@ module.exports = function() {
 		onTowerUpdated: function(callback) {
 			this._onTowerUpdatedCallbacks.push(callback)
 		},
+	}
+
+	// Helper to send messages to other towers
+	function send(message, hostname, port, type, context, callback) {
+		// Attach a random "friend" tower to the message to help the network grow.
+		var keys = Object.keys(context.towers['alive']),
+			friend = context.towers['alive'][keys[ keys.length * Math.random() << 0]]
+
+		// Construct the payload
+		const data = JSON.stringify({
+			message: message,
+			hostname: hostname,
+			port: port,
+			type: type,
+			sender: {hostname: context.options.hostname, port: context.options.port},
+			friend: friend
+		})
+
+		// set up  POST https options
+		const options = {
+			hostname: hostname,
+			port: port,
+			path: '/',
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Content-Length': data.length
+			}
+		}
+		
+		const req = https.request(options, (res) => {
+			res.on('data', d => {
+				// Do nothing - perhaps in the future we could return "friends" whenever a message is received.
+			})
+			res.on('end', () => {
+				callback(res.statusCode);
+			});
+		})
+
+		req.on('error', error => {
+			callback(error);
+		})
+
+		// Execute the HTTP request
+		req.write(data)
+		req.end()
 	}
 }

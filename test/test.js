@@ -1,10 +1,16 @@
+// Allow self-signed certificate in development - don't do this on production.
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+
 // Include clacks library
-var clacks = require ('./index.js')
+var clacks = require ('../index.js'),
+	fs = require('fs'),
+	key = fs.readFileSync('key.pem'),
+	cert = fs.readFileSync('cert.pem')
 
 // Allocate 3 towers for testing
-var clacks1 = clacks(),
-    clacks2 = clacks(),
-    clacks3 = clacks()
+var clacks1 = clacks(key, cert),
+    clacks2 = clacks(key, cert),
+    clacks3 = clacks(key, cert)
 
 // Monitoring - message recieved
 clacks1.onMessageRecieved(function(payload) {
