@@ -11,7 +11,51 @@ Effectively there is no permanent local storage, outside of the temporary messag
 
 If you consider the entire network as one big storage device, the total data held within the network is a function of the average network latency multiplied by the number of peers.
 
-# Can I use it?
+# Basic Usage
+
+**Starting a clacks tower**
+
+    Clacks = import('clacks')
+    tower = Clacks()
+    tower.init()
+
+**Interacting with the local clacks tower**
+
+    // Enqueue a message into the local queue, to be distributed into the network:
+    tower.enqueue(message)
+    
+    // View the current contents of the local clacks tower's queue:
+    messages = tower.peek()
+    
+    // View the current list of peer towers
+    towers = tower.survey()
+    
+    // Add a remote tower to the local peer towers list
+    tower.expand(hostname, port)
+    
+    // Announce this tower to a remote tower, and additionally add the remote tower to the local towers list
+    tower.announce(hostname, port)
+
+**Event listeners**
+
+    // Message received:
+    tower.onMessageReceived(function(payload){
+      // do something with payload
+    })
+
+    // New remote tower discovered:
+    tower.onTowerDiscovered(function(tower){
+      // do something with tower
+    })
+
+    // Remote tower status updated:
+    tower.onTowerUpdated(function(tower){
+      // do something with tower
+    })
+
+# Is it production-ready?
+
+Not yet.
 
 You can download this repostiory and run the test scripts per the testing steps below if you'd like a better idea of how it works.
 
