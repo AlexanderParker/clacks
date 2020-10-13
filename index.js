@@ -308,14 +308,16 @@ module.exports = function(sslKey, sslCert) {
 			friend = context.towers['alive'][keys[ keys.length * Math.random() << 0]]
 
 		// Construct the payload
-		const data = JSON.stringify({
+		var payload = {
 			message: message,
-			hostname: hostname,
-			port: port,
 			type: type,
-			sender: {hostname: context.options.hostname, port: context.options.port},
-			friend: friend
-		})
+			sender: {hostname: context.options.hostname, port: context.options.port}
+		}
+		if (!!friend) payload.friend = {
+			hostname: friend.hostname,
+			port: friend.port
+		}		
+		var data = JSON.stringify(payload)
 
 		// set up  POST https options
 		const options = {

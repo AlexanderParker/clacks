@@ -46,10 +46,15 @@ Also, you will need to have an SSL certificate and key handy. You can generate a
 
 **Event listeners**
 
-    // Message received:
+    // After message received (before it is queued):
     tower.onMessageReceived(function(payload){
       // do something with payload
       // Setting payload.message to null, false, or undefined will prevent it from being added to the local queue.
+    })
+
+    // After a message is queued:
+    tower.onMessageQueued(function(message){
+      // do something with message
     })
 
     // New remote tower discovered:
@@ -88,6 +93,39 @@ This determines how many messages a second the clacks node will attempt to send.
 **killtimeout**
 
 Time in microseconds after which a "lost" host becomes "dead".
+
+# Message Payload
+
+Message payloads are passed between peers in the following basic format:
+
+    {
+      message: <MIXED>,
+      type: <STRING["message"|"announce"]>,
+      sender: {
+        hostname: <STRING>,
+        port: <STRING|INT>
+      },
+      friend: {
+        hostname: <STRING>,
+        port: <STRING|INT>
+      }
+    }
+
+**message**
+
+The message can be any data to be sent between towers.
+
+**type**
+
+Either "message" or "announce". If it's an "announce" type, then message contents are  ignored.
+
+**sender**
+
+Hostname and port of the origin of the message.
+
+**friend**
+
+Hostname and port of a randomly chosen "alive" tower from the sender's peer list. This is used to grow the network organically.
 
 # Testing
 
