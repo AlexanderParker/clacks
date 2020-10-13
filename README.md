@@ -1,6 +1,6 @@
 # What is Clacks?
 
-Clacks is a peer to peer network messaging utility. There is no permanent local storage, outside of the temporary message queue that only resides in an individual peer's memory.
+Clacks is a peer to peer network messaging utility. There is no permanent data storage on any individual node, data only exists within the temporary message queue that  resides in an individual peer's memory, and on the network overhead as data is transmitted between peers.
 
 If you consider the entire network as one big storage device, the total data held within the network is a function of the average network latency multiplied by the number of peers, plus whatever is current stored in the queues of each peer.
 
