@@ -57,7 +57,7 @@ If you consider the entire network as one big storage device, the total data hel
 
 Not yet.
 
-You can download this repostiory and run the test scripts per the testing steps below if you'd like a better idea of how it works.
+You can download this repository and run the test scripts per the testing steps below if you'd like a better idea of how it works.
 
 It's not production ready at this stage. It's an experimental approach that could definitely use lots of testing and pull requests.
 
