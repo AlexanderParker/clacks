@@ -1,6 +1,12 @@
+# What is clacks-p2p?
+
+This repository contains a nodejs implementation of the clacks p2p system. It is a low-level package with only the most basic message passing and discovery logic built-in.
+
+Applications can build whatever desired behaviours they like on top of it (see [Application Ideas](#application-ideas) below for some conceptual use-cases).
+
 # What is Clacks?
 
-Clacks is a peer to peer network messaging utility. There is no permanent data storage on any individual node; data only exists within the temporary message queue within an individual peer's memory, and on the network overhead as data is transmitted between peers.
+Clacks is a peer-to-peer network messaging system. There is no permanent data storage on any individual node; data only exists within the temporary message queue within an individual peer's memory, and on the network overhead as data is transmitted between peers.
 
 ![Message Flow Illustration](https://raw.githubusercontent.com/AlexanderParker/clacks/main/assets/docs-msg-illustration.png)
 
@@ -13,6 +19,8 @@ The system utilises three basic concepts to achieve this outcome:
 The total data held within the network for any given second is a function of the average network latency between all peers multiplied by the number of messages sent per second (across all peers), plus the contents of the queues of each peer.
 
 # Basic Usage
+
+Assuming you have a nodejs development environment already, getting started with clacks is quite simple.
 
 **Installing**
 
@@ -160,7 +168,7 @@ Clacks towers can maintain a list of peer towers. Each of these peers has a stat
 * More specialised client applications will be able to validate and filter inbound and outbound messages, and implement controls to ignore peers.
 * Events may be added as needed to give client applications the necessary tools to achieve this.
 
-# Important next steps
+# General to-do list
 
 * Broad scale testing to determine weaknesses and mitigations
 * Bulk test large numbers of clacks towers to profile message propagation dynamics
