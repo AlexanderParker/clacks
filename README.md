@@ -10,11 +10,10 @@ Clacks is a peer-to-peer network messaging system. There is no permanent data st
 
 ![Message Flow Illustration](https://raw.githubusercontent.com/AlexanderParker/clacks/main/assets/docs-msg-illustration.png)
 
-The system utilises three basic concepts to achieve this outcome:
+The system utilises two basic concepts to achieve this outcome:
 
 1. Peers (aka Towers) send messages to each other from their queue. After the message is sent, it is deleted.
-2. When a peer recieves a message, the message is added to the peers queue.
-3. Messages only exist in volatile memory of a random peer, or are in transit.
+2. When a peer recieves a message, the message is added to the peers queue, and the process repeats indefinitely.
 
 The total data held within the network for any given second is a function of the average network latency between all peers multiplied by the number of messages sent per second (across all peers), plus the contents of the queues of each peer.
 
