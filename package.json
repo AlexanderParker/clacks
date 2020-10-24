@@ -1,6 +1,6 @@
 {
   "name": "clacks-p2p",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Clacks Peer to Peer Messaging System",
   "main": "index.js",
   "scripts": {

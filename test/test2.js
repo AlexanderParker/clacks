@@ -7,31 +7,31 @@ var clacks = require ('../index.js'),
 	key = fs.readFileSync('key.pem'),
 	cert = fs.readFileSync('cert.pem')
 
-// Allocate 3 towers for testing
+// Allocate 3 peers for testing
 var clacks4 = clacks(key, cert)
 
 // Set up monitoring - message recieved
 clacks4.onMessageRecieved(function(payload) {
-	console.log("\nTower 4 recieved message: " + payload.message + " from " + payload.sender.hostname + ":" + payload.sender.port)	
+	console.log("\nPeer 4 recieved message: " + payload.message + " from " + payload.sender.hostname + ":" + payload.sender.port)	
 })
 // Monitoring - message queued
 clacks4.onMessageQueued(function(message) {
-	console.log("Tower 4 message queue:", clacks4.peek())
+	console.log("Peer 4 message queue:", clacks4.peek())
 })
-// Set up monitoring - new tower discovered
-clacks4.onTowerDiscovered(function(tower) {
-	console.log("\nTower 4 found new tower: " + tower.hostname + ":" + tower.port)
-	console.log("Tower 4 peers", clacks4.survey())
+// Set up monitoring - new peer discovered
+clacks4.onPeerDiscovered(function(peer) {
+	console.log("\nPeer 4 found new peer: " + peer.hostname + ":" + peer.port)
+	console.log("Peer 4 peers", clacks4.survey())
 })
-// Monitorion: Tower Updated
-clacks4.onTowerUpdated(function(tower) {
-	console.log("\nTower 4 peer tower updated: " + tower.hostname + ":" + tower.port + " (" + tower.status + ")")
+// Monitorion: Peer Updated
+clacks4.onPeerUpdated(function(peer) {
+	console.log("\nPeer 4 peer updated: " + peer.hostname + ":" + peer.port + " (" + peer.status + ")")
 })
 
-console.log('\nInitialising 4th local clacks tower, with send rate of 0.5 messages per second')
+console.log('\nInitialising 4th local clacks peer, with send rate of 0.5 messages per second')
 clacks4.init({port: 8004, sendrate: 0.5})
 
-// Now announce tower 4 to tower 1
-console.log("\nAnnounce Tower 4's presence to Tower 1")
+// Now announce peer 4 to peer 1
+console.log("\nAnnounce Peer 4's presence to Peer 1")
 clacks4.announce('localhost', 8001)
 

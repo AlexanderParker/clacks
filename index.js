@@ -1,20 +1,21 @@
-var sha256 = require('crypto-js/sha256'),
-	https = require('https')
-
 module.exports = function(sslKey, sslCert) {
 	// SSL certificate and key is mandatory
 	if (!sslKey || !sslCert) throw 'Undefined HTTPS key and/or certificate.'
 
-	// Generate and return the clacks server object
-	return {
+	var sha256 = require('crypto-js/sha256'),
+		https = require('https'),
+		onMessageRecievedCallbacks = [],	// Callbacks executed when messages are received. 		[function callback(<payload>) {}]	
+		onPeerDiscoveredCallbacks = [],	// Callbacks executed when new peers are discovered 	[function callback(<peer>) {}]	
+		onPeerUpdatedCallbacks = [],		// Callbacks executed when a peer is updated. 			[function callback(<peer>) {}]	
+		onMessageQueuedCallbacks = [],		// Callbacks executed when a message is queued. 		[function callback(<message>) {}]
 		/*
-			Towers are other known clacks hosts. We keep track of their address,
+			Peers are other known clacks hosts. We keep track of their address,
 			active status, and the time that status last updated.	
 
 
-			Towers format:
+			Peers format:
 
-			   	towers[status][addresshash] = {
+			   	peers[status][addresshash] = {
 					hostname: <string> (url)
 					time:    <int>    (timestamp)
 				}
@@ -25,16 +26,15 @@ module.exports = function(sslKey, sslCert) {
 				alive:   Was alive when last contacted
 				lost:    Missing from network, might be temporary
 				dead:    Missing from network, probably permanent
-				ignored: Known tower to be ignored
+				ignored: Known peer to be ignored
 		*/
-		towers: {
+		peers = {
 			new: {},
 			alive: {},
 			lost: {},
 			dead: {},
 			ignored: {}
 		},
-
 		/*
 			The queue contains messages to broadcast.
 
@@ -42,40 +42,29 @@ module.exports = function(sslKey, sslCert) {
 
 			Items may also be manually queued.
 		*/
-		queue: [],
-		/*
-			Array of callbacks to be called when messages are received. [function callback(<payload>) {}]
-		 */
-		_onMessageRecievedCallbacks: [],
-		/*
-			Array of callbacks to be called when new towers are discovered [function callback(<tower>) {}]
-		 */
-		_onTowerDiscoveredCallbacks: [],
-		/*
-			Array of callbacks to be called when a tower is updated. [function callback(<tower>) {}]
-		*/
-		_onTowerUpdatedCallbacks: [],
-		/*
-			Array of callbacks to be called when a message is queued. [function callback(<message>) {}]
-		*/
-		_onMessageQueuedCallbacks: [],
-		options: {
+		queue = [],
+		// Default options, can be overridden with init(options)
+		options = {
 			// Send rate (messages per second)
 			sendrate: 1,
 			// Server port
 			port: 8080,
 			// server hostname (self reported)
 			hostname: 'localhost',
-			// timeout in ms after which lost towers are pronounced 'dead'
+			// timeout in ms after which lost peers are pronounced 'dead'
 			killtimeout: 3600000
-		},
+		}
+
+	// Generate and return the clacks server object
+	return {
+
 		// Initialise this clacks host (options is optional)
-		init: function(options) {			
+		init: function(optionOverrides) {			
 			// Parse options - todo, make generic
-			if (typeof options != 'undefined') {
-				this.options.sendrate = options.sendrate || this.options.sendrate
-				this.options.port = options.port || this.options.port
-				this.options.hostname = options.hostname || this.options.hostname
+			if (typeof optionOverrides != 'undefined') {
+				options.sendrate = optionOverrides.sendrate || options.sendrate
+				options.port = optionOverrides.port || options.port
+				options.hostname = optionOverrides.hostname || options.hostname
 			}
 
 			// Start listening for messages
@@ -86,92 +75,104 @@ module.exports = function(sslKey, sslCert) {
 				// Assemble the received message data
 				var data = []
 				req.on('data', function(chunk) {
+					// Todo - rate / flood limiting
 					data.push(chunk)
 				}.bind(this))
 				req.on('end', function() {
-					var payload = JSON.parse(data),
-						identifier = sha256(payload.sender.hostname + payload.sender.port).toString(),
-						sourceTower = this.getTower(identifier)						
-					// Reject payloads from ignore list
-					if (!!sourceTower && sourceTower.status == 'ignored') {
-						res.writeHead(403)
+					try {						
+						var payload = JSON.parse(data)
+							identifier = sha256(payload.sender.hostname + payload.sender.port).toString()
+							sourcePeer = this.getPeer(identifier)
+
+						// Execute middleware
+
+
+						// Reject payloads from ignore list
+						if (!!sourcePeer && sourcePeer.status == 'ignored') {
+							res.writeHead(403)
+							res.end()
+							return
+						}
+
+						// Todo - add some logic to validate payloads and add abusers to ignored list
+						switch (payload.type) {
+							case 'message':
+								onMessageRecievedCallbacks.forEach(function(cb){
+									cb(payload)
+								})
+								this.enqueue(payload.message)
+								break
+							case 'announce':
+							default:
+								break
+						}
+
+						// Expand and heal the network					
+						if (!sourcePeer) {
+							this.expand(payload.sender.hostname, payload.sender.port)
+						} else {
+							this.update(sourcePeer, 'alive')
+						}										
+						if (!!payload.friend) this.expand(payload.friend.hostname, payload.friend.port)
+
+						// Finalise
+						res.writeHead(200)
 						res.end()
-						return
+					} catch (e) {
+						console.log(e)
 					}
-					// Todo - add some logic to validate payloads and add abusers to ignored list
-					switch (payload.type) {
-						case 'message':
-							this._onMessageRecievedCallbacks.forEach(function(cb){
-								cb(payload)
-							})
-							this.enqueue(payload.message)
-							break
-						case 'announce':
-						default:
-							break
-					}
-					// Expand and heal the network					
-					if (!sourceTower) {
-						this.expand(payload.sender.hostname, payload.sender.port)
-					} else {
-						this.update(sourceTower, 'alive')
-					}										
-					if (!!payload.friend) this.expand(payload.friend.hostname, payload.friend.port)
-					// Finalise
-					res.writeHead(200)
-					res.end()
 				}.bind(this))
-			}.bind(this)).listen(this.options.port)
+			}.bind(this)).listen(options.port)
 
 			// Start sending messages
 			var sendInterval = setInterval(function() {
 				if (!this.isEmpty()) {
-					// Pick a tower
-					var targetTower = null
+					// Pick a peer
+					var targetPeer = null
 					var targetStatus = 'new'
-					var keys = Object.keys(this.towers['new'])
-					// Prioritise new towers
+					var keys = Object.keys(peers['new'])
+					// Prioritise new peers
 					if (keys.length > 0) {
-						targetTower = this.towers['new'][keys[0]]
+						targetPeer = peers['new'][keys[0]]
 					}
-					// If there are no new towers, choose between the alive towers and retrying lost or dead ones
+					// If there are no new peers, choose between the alive peers and retrying lost or dead ones
 					else {					
 						// Default to alive
 						targetStatus = 'alive'
-						keys = Object.keys(this.towers['alive'])
+						keys = Object.keys(peers['alive'])
 						var factor = Math.random()
-						// Try lost towers randomly, or we have no alive towers
-						if ((factor > 0.95 || keys.length == 0) && Object.keys(this.towers['lost']).length > 0) {
+						// Try lost peers randomly, or we have no alive peers
+						if ((factor > 0.95 || keys.length == 0) && Object.keys(peers['lost']).length > 0) {
 							targetStatus = 'lost'
-							keys = Object.keys(this.towers['lost'])
+							keys = Object.keys(peers['lost'])
 						}
-						// Try dead towers randomly, or we have no alive or lost towers
-						if ((factor > 0.999 || keys.length == 0) && Object.keys(this.towers['dead']).length > 0) {
+						// Try dead peers randomly, or we have no alive or lost peers
+						if ((factor > 0.999 || keys.length == 0) && Object.keys(peers['dead']).length > 0) {
 							targetStatus = 'dead'
-							keys = Object.keys(this.towers['dead'])
+							keys = Object.keys(peers['dead'])
 						}
-						// Pick random tower from the target list
-						if (keys.length > 0) targetTower = this.towers[targetStatus][keys[ keys.length * Math.random() << 0]]
+						// Pick random peer from the target list
+						if (keys.length > 0) targetPeer = peers[targetStatus][keys[ keys.length * Math.random() << 0]]
 					}
 					// Send the message, with callback function on success
 					var nextMessage = this.dequeue()
-					if (!!targetTower) send(
+					if (!!targetPeer) send(
 						nextMessage,
-						targetTower.hostname,
-						targetTower.port,
+						targetPeer.hostname,
+						targetPeer.port,
 						'message',
 						this,
 						function(result) {
 							if (result == '200') {
-								// Update the tower
-								this.update(targetTower, 'alive')
+								// Update the peer
+								this.update(targetPeer, 'alive')
 							} else {								
-								// Update the tower - new or previously alive towers become "lost"
-								if (targetTower.status == 'alive' || targetTower.status == 'new') {
-									this.update(targetTower, 'lost')
+								// Update the peer - new or previously alive peers become "lost"
+								if (targetPeer.status == 'alive' || targetPeer.status == 'new') {
+									this.update(targetPeer, 'lost')
 								}
-								else if (targetTower.status == 'lost' && Date.now() - targetTower.time > this.options.killtimeout) {
-									this.update(targetTower, 'dead')
+								else if (targetPeer.status == 'lost' && Date.now() - targetPeer.time > options.killtimeout) {
+									this.update(targetPeer, 'dead')
 								}
 								// Return failed message to the queue
 								this.enqueue(nextMessage)
@@ -180,32 +181,32 @@ module.exports = function(sslKey, sslCert) {
 					)
 				}
 				else {
-					// Todo - perhaps allow a tower with no messages to announce itself automatically?
+					// Todo - perhaps allow a peer with no messages to announce itself automatically?
 				}
-			}.bind(this), 1000 / this.options.sendrate)
+			}.bind(this), 1000 / options.sendrate)
 		},
-		// Add a new message to this towers message queue
+		// Add a new message to this peers message queue
 		enqueue: function(message) {
 			if (!!message) {
-				this.queue.push(message)
-				this._onMessageQueuedCallbacks.forEach(function(cb){
+				queue.push(message)
+				onMessageQueuedCallbacks.forEach(function(cb){
 					cb(message)
 				}.bind(this))
 			}
 		},
 		// Remove and return a message from the head of the queue
 		dequeue: function() {
-			return this.queue.shift()
+			return queue.shift()
 		},
 		// Return the entire message queue
 		peek: function() {
-			return this.queue
+			return queue
 		},
 		// Returns true if the message queue is empty
 		isEmpty: function() {
-			return this.queue.length == 0
+			return queue.length == 0
 		},
-		// Anounce our presence to another tower
+		// Anounce our presence to another peer
 		announce: function(hostname, port) {
 			send(
 				null,
@@ -215,34 +216,34 @@ module.exports = function(sslKey, sslCert) {
 				this,
 				function(result) {
 					if (result == '200') {
-						// Update the tower
+						// Update the peer
 						this.expand(hostname, port)
 					}
 				}.bind(this)
 			)
 		},
-		// Retrieve a tower by identifier, or null
-		getTower: function(identifier) {
-			if (this.towers['ignored'].hasOwnProperty(identifier)) return this.towers['ignored'][identifier]
-			if (this.towers['alive'].hasOwnProperty(identifier)) return this.towers['alive'][identifier]
-			if (this.towers['new'].hasOwnProperty(identifier)) return this.towers['new'][identifier]
-			if (this.towers['dead'].hasOwnProperty(identifier)) return this.towers['dead'][identifier]
-			if (this.towers['lost'].hasOwnProperty(identifier)) return this.towers['lost'][identifier]
+		// Retrieve a peer by identifier, or null
+		getPeer: function(identifier) {
+			if (peers['ignored'].hasOwnProperty(identifier)) return peers['ignored'][identifier]
+			if (peers['alive'].hasOwnProperty(identifier)) return peers['alive'][identifier]
+			if (peers['new'].hasOwnProperty(identifier)) return peers['new'][identifier]
+			if (peers['dead'].hasOwnProperty(identifier)) return peers['dead'][identifier]
+			if (peers['lost'].hasOwnProperty(identifier)) return peers['lost'][identifier]
 		},
-		// Add a new tower to the clacks network
+		// Add a new peer to the clacks network
 		expand: function(hostname, port, status) {		
 
 			var identifier = sha256(hostname+port).toString()
 				targetStatus = status || 'new'
 
-			// Don't add this actual tower to the list
-			if (hostname == this.options.hostname && port == this.options.port) return
+			// Don't add this actual peer to the list
+			if (hostname == options.hostname && port == options.port) return
 
-			// Don't add existing towers
-			if (this.getTower(identifier)) return
+			// Don't add existing peers
+			if (this.getPeer(identifier)) return
 
-			// Add the new tower
-			this.towers[targetStatus][identifier] = {
+			// Add the new peer
+			peers[targetStatus][identifier] = {
 				identifier: identifier,
 				hostname: hostname,
 				port: port,
@@ -250,71 +251,75 @@ module.exports = function(sslKey, sslCert) {
 				time: Date.now()
 			}
 
-			// Trigger new tower added event
-			this._onTowerDiscoveredCallbacks.forEach(function(cb){
-				cb(this.towers[targetStatus][identifier])
+			// Trigger new peer added event
+			onPeerDiscoveredCallbacks.forEach(function(cb){
+				cb(peers[targetStatus][identifier])
 			}.bind(this))
 		},
-		// Updates a tower to specifed status
-		update: function(tower, status) {
-			// No need to update tower if status remains the same
-			if (tower.status == status || tower.status == 'ignored') return
-			// Remove tower from old status
-			delete(this.towers[tower.status][tower.identifier])
-			// Update tower status
-			tower.status = status
-			tower.time = Date.now()
-			// Add tower to new status
-			this.towers[tower.status][tower.identifier] = tower
-			this._onTowerUpdatedCallbacks.forEach(function(cb){
-				cb(this.towers[tower.status][tower.identifier])
+		// Updates a peer to specifed status
+		update: function(peer, status) {
+			// No need to update peer if status remains the same
+			if (peer.status == status || peer.status == 'ignored') return
+			// Remove peer from old status
+			delete(peers[peer.status][peer.identifier])
+			// Update peer status
+			peer.status = status
+			peer.time = Date.now()
+			// Add peer to new status
+			peers[peer.status][peer.identifier] = peer
+			onPeerUpdatedCallbacks.forEach(function(cb){
+				cb(peers[peer.status][peer.identifier])
 			}.bind(this))
 		},
 		// Ignores a specified hostname and port
 		ignore: function(hostname, port) {
 			var identifier = sha256(hostname+port).toString(),
-				tower = this.getTower(identifier)
+				peer = this.getPeer(identifier)
 
-			if (!!tower) {
-				this.update(tower, 'ignored')
+			if (!!peer) {
+				this.update(peer, 'ignored')
 			} else {
-				// Add the new tower directly to the ignored list
+				// Add the new peer directly to the ignored list
 				this.expand(hostname, port, 'ignored')
 			}
 		},
-		// Retrieve current known towers statuses
+		// Retrieve current known peers statuses
 		survey: function() {
-			return this.towers
+			return peers
+		},
+		// Retrieve defined options
+		getOptions: function() {
+			return options
 		},
 		// Register callback triggered after a message is received
 		onMessageRecieved: function(callback) {
-			this._onMessageRecievedCallbacks.push(callback)
+			onMessageRecievedCallbacks.push(callback)
 		},
-		// Register callback triggered after a new tower is discovered
-		onTowerDiscovered: function(callback) {
-			this._onTowerDiscoveredCallbacks.push(callback)
+		// Register callback triggered after a new peer is discovered
+		onPeerDiscovered: function(callback) {
+			onPeerDiscoveredCallbacks.push(callback)
 		},
-		// Register callback triggered after a new tower is discovered
-		onTowerUpdated: function(callback) {
-			this._onTowerUpdatedCallbacks.push(callback)
+		// Register callback triggered after a new peer is discovered
+		onPeerUpdated: function(callback) {
+			onPeerUpdatedCallbacks.push(callback)
 		},
 		// Register callback triggered after a new message is queued
 		onMessageQueued: function(callback) {
-			this._onMessageQueuedCallbacks.push(callback)
+			onMessageQueuedCallbacks.push(callback)
 		},
 	}
 
-	// Helper to send messages to other towers
+	// Helper to send messages to other peers
 	function send(message, hostname, port, type, context, callback) {
-		// Attach a random "friend" tower to the message to help the network grow.
-		var keys = Object.keys(context.towers['alive']),
-			friend = context.towers['alive'][keys[ keys.length * Math.random() << 0]]
+		// Attach a random "friend" peer to the message to help the network grow.
+		var keys = Object.keys(context.survey()['alive']),
+			friend = context.survey()['alive'][keys[ keys.length * Math.random() << 0]]
 
 		// Construct the payload
 		var payload = {
 			message: message,
 			type: type,
-			sender: {hostname: context.options.hostname, port: context.options.port}
+			sender: {hostname: context.getOptions().hostname, port: context.getOptions().port}
 		}
 		if (!!friend) payload.friend = {
 			hostname: friend.hostname,
