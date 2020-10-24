@@ -16,9 +16,12 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 
 			Peers format:
 
-			   	peers[status][addresshash] = {
-					hostname: <string> (url)
-					time:    <int>    (timestamp)
+			   	peers[status][identifier] = {
+				  identifier: '<sha256 hash of peer hostname+port>',
+				  hostname: '<peer hostname>',
+				  port: '<peer port>',
+				  status: '<peer status>',
+				  time: <int timestamp of last status change>
 				}
 
 			Status meanings:
