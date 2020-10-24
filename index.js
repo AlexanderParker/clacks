@@ -213,6 +213,14 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 						identifier = sha256(payload.sender.hostname + payload.sender.port).toString()
 						sourcePeer = this.getPeer(identifier)
 
+					// Add or update peers list		
+					if (!sourcePeer) {						
+						this.addPeer(payload.sender.hostname, payload.sender.port)
+						sourcePeer = this.getPeer(identifier)
+					} else {
+						this.update(sourcePeer, 'alive')						
+					}
+
 					// Execute plugin - if any plugin returns false no further processing occurs
 					for (var cb of pluginCallbacks) {
 						if (cb.bind(this)(sourcePeer, payload, req, res) === false) {
@@ -241,12 +249,7 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 							break
 					}
 
-					// Expand and heal the network					
-					if (!sourcePeer) {
-						this.addPeer(payload.sender.hostname, payload.sender.port)
-					} else {
-						this.update(sourcePeer, 'alive')
-					}										
+					// Expand awareness of the network.
 					if (!!payload.friend) this.addPeer(payload.friend.hostname, payload.friend.port)
 
 					// Finalise
