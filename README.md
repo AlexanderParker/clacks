@@ -138,29 +138,17 @@ Hostname and port of the origin of the message.
 
 Hostname and port of a randomly chosen "alive" peer from the sender's peer list. This is used to grow the network organically.
 
-# Plugins
+# Peers
 
-Plugins are simple callbacks which execute immediately after a payload is recieved. Multiple plugins are are executed in the same order they were loaded.
+Internally, a clacks instance maintains an array of peers. Peers are objects which have the following structure:
 
-Plugin callbacks take three arguments:
-
-* **peer** - Object representing the peer which sent the payload
-* **payload** - Object representing the payload
-* **req** - request from peer
-* **res** - response to peer
-
-Optionally, if a plugin callback returns "false", the payload will be discarded and all further processing will end.
-
-    clacks1.extend(function(peer, payload, req, res) {
-      console.log(peer, payload) // Show the contents of the source peer and the incoming payload
-      console.log(this.getPeers()) // Will show the peer list of the local node
-      res.writeHead(200) // You can manipulate the response
-      return false // Will prevent further processing and discard the payload (res.end() will be called automatically)
-    })
-
-# Testing & Examples
-
-There are a number of basic test scripts and examples in the [clacks-tests repository](https://github.com/AlexanderParker/clacks-tests). Refer to its readme for further information on testing.
+    {
+      identifier: '<sha256 hash of peer hostname+port>',
+      hostname: '<peer hostname>',
+      port: '<peer port>',
+      status: '<peer status>',
+      time: <int timestamp of last status change>
+    }
 
 # Peer discovery
 
@@ -182,22 +170,33 @@ Clacks nodes maintain a list of peers. Each of these peers has a status as follo
 
 *Note: "dead" and "lost" peers are reinstated to "alive" immediately upon a successful message transaction, whether as sender or recipient.*
 
-# Message validation and filtering
+# Plugins
 
-* The intention is to keep this library agnostic from client application needs. As such there is no baked-in message validation or filtering.
-* A raw clacks host will accept, enqueue, and forward any message from any source.
-* More specialised client applications will be able to validate and filter inbound and outbound messages, and implement controls to ignore peers.
-* Events may be added as needed to give client applications the necessary tools to achieve this.
+Plugins are simple callbacks which execute immediately after a payload is recieved. Multiple plugins are are executed in the same order they were loaded.
+
+Plugin callbacks take three arguments:
+
+* **peer** - Object representing the peer which sent the payload
+* **payload** - Object representing the payload
+* **req** - request from peer
+* **res** - response to peer
+
+Optionally, if a plugin callback returns "false", the payload will be discarded and all further processing will end.
+
+    clacks1.extend(function(peer, payload, req, res) {
+      console.log(peer, payload) // Show the contents of the source peer and the incoming payload
+      console.log(this.getPeers()) // Will show the peer list of the local node
+      res.writeHead(200) // You can manipulate the response
+      return false // Will prevent further processing and discard the payload (res.end() will be called automatically)
+    })
 
 # Plugins list
 
 * **[clacks-logger](https://github.com/AlexanderParker/clacks-logger)** A very simple plugin that logs messages to the filesystem. Intended mainly for profiling and debugging.
 
-# General to-do list
+# Testing & Examples
 
-* Broad scale testing to determine weaknesses and mitigations
-* Bulk test large numbers of clacks peers to profile message propagation dynamics
-* Create proof of concept application(s)
+There are a number of basic test scripts and examples in the [clacks-tests repository](https://github.com/AlexanderParker/clacks-tests). Refer to its readme for further information on testing.
 
 # Application ideas
 
