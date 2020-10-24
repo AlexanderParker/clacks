@@ -25,7 +25,7 @@ Assuming you have a nodejs development environment already, getting started with
 
     > npm install clacks-p2p
 
-Also, you will need to have an SSL certificate and key handy. You can generate a self-signed one for testing (check out the **/test** folder and code for example)
+Also, you will need to have an SSL certificate and key handy. You can generate a self-signed one for testing (check out the [clacks-tests repository](https://github.com/AlexanderParker/clacks-tests) for example usage).
 
 **Starting a clacks node instance**
 
@@ -158,9 +158,9 @@ Optionally, if a plugin callback returns "false", the payload will be discarded 
       return false // Will prevent further processing and discard the payload (res.end() will be called automatically)
     })
 
-# Testing
+# Testing & Examples
 
-There are a number of basic test scripts in the **/test** folder. Refer to the **README.md** in the **/test** folder for further instruction on testing.
+There are a number of basic test scripts and examples in the [clacks-tests repository](https://github.com/AlexanderParker/clacks-tests). Refer to its readme for further information on testing.
 
 # Peer discovery
 
@@ -188,6 +188,10 @@ Clacks nodes maintain a list of peers. Each of these peers has a status as follo
 * A raw clacks host will accept, enqueue, and forward any message from any source.
 * More specialised client applications will be able to validate and filter inbound and outbound messages, and implement controls to ignore peers.
 * Events may be added as needed to give client applications the necessary tools to achieve this.
+
+# Plugins list
+
+* **[clacks-logger](https://github.com/AlexanderParker/clacks-logger)** A very simple plugin that logs messages to the filesystem. Intended mainly for profiling and debugging.
 
 # General to-do list
 
@@ -217,4 +221,10 @@ I always have trouble naming things. After kicking ideas for this project around
 
 It should be noted that other than the source of inspiration for the name, this project has no technical relationship to the unofficial [X-Clacks-Overhead](https://xclacksoverhead.org/home/about) HTTP header, or any of the various libraries that implement it. I'd also like to add that this project is not in any way affiliated with the estate of [Terry Pratchett](https://en.wikipedia.org/wiki/Terry_Pratchett).
 
-GNU Terry Pratchett.
+In short; GNU Terry Pratchett.
+
+# Contributing
+
+If this project interests you, all contributions are welcome, from pull requests to suggestions and bug reports.
+
+Feel free to [raise issues](https://github.com/AlexanderParker/clacks/issues) if you spot any problems, have general questions, ideas or feedback.
