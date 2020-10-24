@@ -10,10 +10,18 @@ function plugin(options) {
 	}
 
 	return function(peer, payload, req, res) {
+
+		console.log(peer, payload)
+
+		// Crude way to ensure valid identifier
+		if (!peer || !peer.identifier || !peer.identifier.match(/[A-Fa-f0-9]{64}/)) return
+
+		console.log('peer is valid')
+
 		// Only log messages
 		if (!payload.type || payload.type != 'message') return
 
-		console.log(peer, payload)
+		console.log('payload is a message')
 	}
 }
 
