@@ -209,6 +209,12 @@ Clacks nodes maintain a list of peers. Each of these peers has a status as follo
 * Crawling: A crawling application could craft messages that contain a growing list of known peers and use these messages to expand awareness of the full network.
 * Hybrid: A hybrid clacks application would combine base concepts, such as tuning in, filtering, transforming, bifurcating, archiving, persisting, stonewalling, corrupting, flooding and crawling, to achieve its purposes.
 
-# A small tribute
+# Why call it "clacks"?
 
-https://discworld.fandom.com/wiki/Clacks
+_Do you not know that a man is not dead while his name is still spoken?_ - [Terry Pratchett, Going Postal](https://www.goodreads.com/quotes/46464-do-you-not-know-that-a-man-is-not-dead)
+
+I always have trouble naming things. After kicking ideas for this project around, I realised that the way this protocol passes messages is similar in some way to the semaphore-based [clacks](https://discworld.fandom.com/wiki/Clacks) system described in the [Discworld](https://en.wikipedia.org/wiki/Discworld) universe. Particularly, the three letter code "[GNU](http://www.gnuterrypratchett.com/)" keeps messages alive forever bouncing back and forth in the network.
+
+It should be noted that other than the source of inspiration for the name, this project has no technical relationship to the unofficial [X-Clacks-Overhead](https://xclacksoverhead.org/home/about) HTTP header, or any of the various libraries that implement it. I'd also like to add that this project is not in any way affiliated with the estate of [Terry Pratchett](https://en.wikipedia.org/wiki/Terry_Pratchett).
+
+GNU Terry Pratchett.
