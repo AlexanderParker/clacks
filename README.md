@@ -30,7 +30,7 @@ Also, you will need to have an SSL certificate and key handy. You can generate a
 **Starting a clacks node instance**
 
     Clacks = require('clacks-p2p')
-    clacksInstance = Clacks(key, cert)
+    clacksInstance = new Clacks(key, cert)
     clacksInstance.init(options)
 
 **Interacting with the local clacks node**

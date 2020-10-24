@@ -8,7 +8,7 @@ var clacks = require ('../index.js'),
 	cert = fs.readFileSync('cert.pem')
 
 // Allocate 3 peers for testing
-var clacks4 = clacks(key, cert)
+var clacks4 = new clacks(key, cert)
 
 // Set up monitoring - message recieved
 clacks4.onMessageRecieved(function(payload) {
