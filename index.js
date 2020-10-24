@@ -215,7 +215,7 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 
 					// Execute plugin - if any plugin returns false no further processing occurs
 					for (var cb of pluginCallbacks) {
-						if (cb.bind(this)(sourcePeer, payload, res) === false) {
+						if (cb.bind(this)(sourcePeer, payload, req, res) === false) {
 							res.end()
 							return
 						}
