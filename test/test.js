@@ -1,5 +1,5 @@
 // Allow self-signed certificate in development - don't do this on production.
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
 
 // Include clacks library
 var clacks = require ('../index.js'),
@@ -8,9 +8,10 @@ var clacks = require ('../index.js'),
 	cert = fs.readFileSync('cert.pem')
 
 // Allocate 3 peers for testing
-var clacks1 = new clacks(key, cert),
-    clacks2 = new clacks(key, cert),
-    clacks3 = new clacks(key, cert)
+console.log('\nInitialising 3 local clacks peers, each with send rate of 0.5 messages per second')
+var clacks1 = new clacks(key, cert, {port: 8001, sendrate: 0.5}),
+    clacks2 = new clacks(key, cert, {port: 8002, sendrate: 0.5}),
+    clacks3 = new clacks(key, cert, {port: 8003, sendrate: 0.5})
 
 // Monitoring - message recieved
 clacks1.onMessageRecieved(function(payload) {
@@ -56,17 +57,12 @@ clacks3.onPeerUpdated(function(peer) {
 	console.log("\nPeer 3 peer updated: " + peer.hostname + ":" + peer.port + " (" + peer.status + ")")
 })
 
-console.log('\nInitialising 3 local clacks peers, each with send rate of 0.5 messages per second')
-clacks1.init({port: 8001, sendrate: 0.5})
-clacks2.init({port: 8002, sendrate: 0.5})
-clacks3.init({port: 8003, sendrate: 0.5})
-
 console.log("\nClacks Peers List - Initial State")
-surveyAll()
+getPeersAll()
 
 console.log('\nLet peers 1 & 2 to see one another')
-clacks1.expand('localhost','8002')
-clacks2.expand('localhost','8001')
+clacks1.addPeer('localhost','8002')
+clacks2.addPeer('localhost','8001')
 
 console.log("\nClacks Message List - Pre-enqueue")
 peekAll()
@@ -88,8 +84,8 @@ function peekAll() {
 	console.log("Peer 3", clacks3.peek())
 }
 
-function surveyAll() {
-	console.log("Peer 1", clacks1.survey())
-	console.log("Peer 2", clacks2.survey())
-	console.log("Peer 3", clacks3.survey())
+function getPeersAll() {
+	console.log("Peer 1", clacks1.getPeers())
+	console.log("Peer 2", clacks2.getPeers())
+	console.log("Peer 3", clacks3.getPeers())
 }

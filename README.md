@@ -30,28 +30,30 @@ Also, you will need to have an SSL certificate and key handy. You can generate a
 **Starting a clacks node instance**
 
     Clacks = require('clacks-p2p')
-    clacksInstance = new Clacks(key, cert)
-    clacksInstance.init(options)
+    clacksInstance = new Clacks(key, cert, {<options>})
 
 **Interacting with the local clacks node**
 
     // Enqueue a message into the local queue, to be distributed into the network:
     clacksInstance.enqueue(message)
     
-    // View the current contents of the local node's queue:
+    // Get the current contents of the local node's queue:
     messages = clacksInstance.peek()
     
-    // View the current list of peers
-    peers = clacksInstance.survey()
+    // Get the current list of peers
+    peers = clacksInstance.getPeers()
     
     // Add a remote peer directly to the clacks instance's peer list
-    clacksInstance.expand(hostname, port)
+    clacksInstance.addPeer(hostname, port)
     
     // Announce this instance to a peer, and additionally add the peer to the local peers list
     clacksInstance.announce(hostname, port)
 
     // Ignore a specified peer by hostname and port
     clacksInstance.ignore(hostname, port)
+
+    // Retrieve defined options for the instance
+    options = clacksInstance.getOptions()
 
 **Event listeners**
 
@@ -136,6 +138,26 @@ Hostname and port of the origin of the message.
 
 Hostname and port of a randomly chosen "alive" peer from the sender's peer list. This is used to grow the network organically.
 
+# Plugins
+
+Plugins are simple callbacks which execute immediately after a payload is recieved. Multiple plugins are are executed in the same order they were loaded.
+
+Plugin callbacks take three arguments:
+
+* **peer** - Object representing the peer which sent the payload
+* **payload** - Object representing the payload
+* **req** - request from peer
+* **res** - response to peer
+
+Optionally, if a plugin callback returns "false", the payload will be discarded and all further processing will end.
+
+    clacks1.extend(function(peer, payload, req, res) {
+      console.log(peer, payload) // Show the contents of the source peer and the incoming payload
+      console.log(this.getPeers()) // Will show the peer list of the local node
+      res.writeHead(200) // You can manipulate the response
+      return false // Will prevent further processing and discard the payload (res.end() will be called automatically)
+    })
+
 # Testing
 
 There are a number of basic test scripts in the **/test** folder. Refer to the **README.md** in the **/test** folder for further instruction on testing.
@@ -145,7 +167,7 @@ There are a number of basic test scripts in the **/test** folder. Refer to the *
 There are basic capabilities baked in to discover, reject, and heal peer connections.
 
 * A new node has no innate awareness or ability to discover any other peers as there is no central authority. Applications can concievably store local lists of hosts or fetch them from their own central repositories.
-* Applications can explicitly add peers by calling the **expand(hostname, port)** or **announce(hostname, port)** functions.
+* Applications can explicitly add peers by calling the **addPeer(hostname, port)** or **announce(hostname, port)** functions.
 * Every time a node transmits a message to a peer, it includes a random "friend" - a known "active" peer. This is added to the local host's peer list in the "new" status.
 
 # Peer Statuses
