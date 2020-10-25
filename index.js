@@ -8,7 +8,7 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 		onPeerDiscoveredCallbacks = [],		// Callbacks executed when new peers are discovered 	[function callback(<peer>) {}]	
 		onPeerUpdatedCallbacks = [],		// Callbacks executed when a peer is updated. 			[function callback(<peer>) {}]	
 		onMessageQueuedCallbacks = [],		// Callbacks executed when a message is queued. 		[function callback(<message>) {}]
-		pluginCallbacks = [],				// Callbacks executed on payloads, see plugin docs		[function callback(<peer>, <payload>, res) {}]
+		pluginCallbacks = [],				// Callbacks executed on payloads, see plugin docs		[function callback(<peer>, <payload>, req, res) {}]
 		/*
 			Peers are other known clacks hosts. We keep track of their address,
 			active status, and the time that status last updated.	
@@ -65,7 +65,7 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 				if (!!message) {
 					queue.push(message)
 					onMessageQueuedCallbacks.forEach(function(cb){
-						cb(message)
+						cb.bind(this)(message)
 					}.bind(this))
 				}
 			},
@@ -275,7 +275,7 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 				var keys = Object.keys(peers['new'])
 				// Prioritise new peers
 				if (keys.length > 0) {
-					targetPeer = peers['new'][keys[0]]
+					targetPeer = peers['new'][keys[keys.length * Math.random() << 0]]
 				}
 				// If there are no new peers, choose between the alive peers and retrying lost or dead ones
 				else {					
