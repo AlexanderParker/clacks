@@ -172,7 +172,7 @@ Clacks nodes maintain a list of peers. Each of these peers has a status as follo
 
 # Plugins
 
-Plugins are simple callbacks which execute immediately after a payload is recieved. Multiple plugins are are executed in the same order they were loaded.
+Plugins are simple callbacks which execute immediately after a payload is recieved. Multiple plugins are executed in the same order they were loaded.
 
 Plugin callbacks take three arguments:
 
