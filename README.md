@@ -193,6 +193,7 @@ Optionally, if a plugin callback returns "false", the payload will be discarded 
 # Plugins list
 
 * **[clacks-logger](https://github.com/AlexanderParker/clacks-logger)** A very simple plugin that logs messages to the filesystem. Intended mainly for profiling and debugging.
+* **[clacks-message-formatter](https://github.com/AlexanderParker/clacks-message-formatter)** Adds message structure definition and validation capabilities
 
 # Testing & Examples
 
