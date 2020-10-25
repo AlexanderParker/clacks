@@ -11,7 +11,7 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 		pluginCallbacks = [],				// Callbacks executed on payloads, see plugin docs		[function callback(<peer>, <payload>, req, res) {}]
 		/*
 			Peers are other known clacks hosts. We keep track of their address,
-			active status, and the time that status last updated.	
+			active status, and the time that status last updated.
 
 
 			Peers format:
@@ -56,9 +56,11 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 			// server hostname (self reported)
 			hostname: 'localhost',
 			// timeout in ms after which lost peers are pronounced 'dead'
-			killtimeout: 3600000
+			killtimeout: 3600000,
+			// Possible log classes: "critical", "network"
+			logClasses: [],
 		},
-		// Generate and return the clacks server object
+		// Generate the clacks server object
 		clacksInstance = {
 			// Add a new message to this peers message queue
 			enqueue: function(message) {
@@ -89,10 +91,12 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 					port,
 					'announce',
 					this,
-					function(result) {
-						if (result == '200') {
+					function(responseCode, responseData) {
+						if (responseCode == '200') {
 							// Update the peer
 							this.addPeer(hostname, port)
+						} else {
+							this.log('network', [responseCode, responseData])
 						}
 					}.bind(this)
 				)
@@ -186,6 +190,9 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 			extend: function(callback) {
 				pluginCallbacks.push(callback)
 			},
+			log: function (type, message) {
+				if (options.logClasses.includes(type)) console.log(type, message)
+			}
 		}
 
 	// Initialise this clacks host (options is optional)
@@ -195,6 +202,7 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 			options.sendrate = optionOverrides.sendrate || options.sendrate
 			options.port = optionOverrides.port || options.port
 			options.hostname = optionOverrides.hostname || options.hostname
+			options.logClasses = optionOverrides.log || options.hostname
 		}
 
 		// Start listening for messages
@@ -259,7 +267,7 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 					res.writeHead(200)
 					res.end()
 				} catch (e) {
-					console.log(e)
+					this.log('critical', e)
 					res.writeHead(500)
 					res.end()
 				}
@@ -304,11 +312,12 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 					targetPeer.port,
 					'message',
 					this,
-					function(result) {
-						if (result == '200') {
+					function(responseCode, responseData) {
+						if (responseCode == '200') {
 							// Update the peer
 							this.update(targetPeer, 'alive')
-						} else {								
+						} else {
+							this.log('network', [responseCode, responseData])
 							// Update the peer - new or previously alive peers become "lost"
 							if (targetPeer.status == 'alive' || targetPeer.status == 'new') {
 								this.update(targetPeer, 'lost')
@@ -358,13 +367,14 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 				'Content-Length': data.length
 			}
 		}
-		
+		var responseData = []
 		const req = https.request(options, function(res) {
-			res.on('data', d => {
-				// Do nothing - perhaps in the future we could return "friends" whenever a message is received.
+			res.on('data', chunk => {
+				// do nothing
+				responseData.push(chunk)
 			})
 			res.on('end', () => {
-				callback(res.statusCode)
+				callback(res.statusCode, responseData.toString())
 			})
 		})
 
@@ -381,7 +391,7 @@ module.exports = function(sslKey, sslCert, optionOverrides /* optional */) {
 		init.bind(clacksInstance)(optionOverrides)
 		return clacksInstance
 	} catch (e) {
-		console.log(e)
+		clacksInstance.log('critical', e)
 		return false
 	}
 }
